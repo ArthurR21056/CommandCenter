@@ -44,6 +44,18 @@ export function useTodos() {
     }
   }
 
+  async function assignTodo(id, assignee_id) {
+    const todo = todos.find((t) => t.id === id);
+    if (!todo) return;
+    setTodos((prev) => prev.map((t) => (t.id === id ? { ...t, assignee_id } : t)));
+    try {
+      const updated = await api.patch(`/todos/${id}`, { assignee_id });
+      setTodos((prev) => prev.map((t) => (t.id === id ? updated : t)));
+    } catch {
+      setTodos((prev) => prev.map((t) => (t.id === id ? todo : t)));
+    }
+  }
+
   async function addTodo(todo) {
     const created = await api.post('/todos', todo);
     setTodos((prev) => [...prev, created]);
@@ -59,5 +71,5 @@ export function useTodos() {
     setTodos(updated);
   }
 
-  return { todos, loading, error, cycleStatus, addTodo, removeTodo, resetAll };
+  return { todos, loading, error, cycleStatus, assignTodo, addTodo, removeTodo, resetAll };
 }

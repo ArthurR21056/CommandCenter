@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { UserProvider, useUser } from './context/UserContext';
 import { useSkills } from './hooks/useSkills';
 import { useTodos } from './hooks/useTodos';
+import { useUsers } from './hooks/useUsers';
 import SkillCard from './components/SkillCard';
 import AddSkillForm from './components/AddSkillForm';
 import TodoSection from './components/TodoSection';
@@ -9,7 +10,8 @@ import './App.css';
 
 function Dashboard() {
   const { skills, loading: skillsLoading, error: skillsError, runSkill, addSkill, removeSkill } = useSkills();
-  const { todos, loading: todosLoading, error: todosError, cycleStatus, addTodo, removeTodo, resetAll } = useTodos();
+  const { todos, loading: todosLoading, error: todosError, cycleStatus, assignTodo, addTodo, removeTodo, resetAll } = useTodos();
+  const { users } = useUsers();
   const [showAddSkill, setShowAddSkill] = useState(false);
 
   const today = new Date().toLocaleDateString('en-US', {
@@ -73,8 +75,10 @@ function Dashboard() {
         ) : (
           <TodoSection
             todos={todos}
+            users={users}
             loading={todosLoading}
             onCycle={cycleStatus}
+            onAssign={assignTodo}
             onAdd={addTodo}
             onRemove={removeTodo}
             onReset={resetAll}

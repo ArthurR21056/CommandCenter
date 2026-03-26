@@ -361,6 +361,87 @@
   white-space: nowrap;
 }
 
+/* ── Assignee ────────────────────────────────────────── */
+.assignee-wrap {
+  position: relative;
+}
+
+.assignee-chip {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  font-size: 0.65rem;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid #2d3348;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.assignee-chip.unassigned {
+  background: #1e2433;
+  color: #475569;
+}
+
+.assignee-chip.assigned {
+  background: #1d3461;
+  color: #93c5fd;
+  border-color: #2563eb;
+}
+
+.assignee-chip:hover {
+  border-color: #4b5563;
+  color: #e2e8f0;
+}
+
+.assignee-dropdown {
+  position: absolute;
+  right: 0;
+  top: 32px;
+  background: #1e2433;
+  border: 1px solid #2d3348;
+  border-radius: 8px;
+  padding: 4px;
+  z-index: 10;
+  min-width: 140px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+}
+
+.assignee-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 7px 10px;
+  font-size: 0.8rem;
+  color: #94a3b8;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.1s;
+}
+
+.assignee-option:hover { background: #2d3348; color: #e2e8f0; }
+.assignee-option.active { color: #93c5fd; }
+
+.assignee-option-avatar {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #1d3461;
+  color: #93c5fd;
+  font-size: 0.6rem;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
 /* ── Add Forms ───────────────────────────────────────── */
 .add-skill-form {
   background: #161b27;

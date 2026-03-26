@@ -52,4 +52,11 @@ db.exec(`
   );
 `);
 
+// ── Migrations ───────────────────────────────────────────────────────────────
+
+const todoCols = db.pragma('table_info(todos)').map((c) => c.name);
+if (!todoCols.includes('assignee_id')) {
+  db.exec('ALTER TABLE todos ADD COLUMN assignee_id INTEGER REFERENCES users(id)');
+}
+
 module.exports = db;
