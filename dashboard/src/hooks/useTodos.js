@@ -1,44 +1,63 @@
-import { useState, useEffect } from 'react';
-import { defaultTodos } from '../data/todos';
-
-const STORAGE_KEY = 'commandcenter_todos_v2';
-const STATUS_CYCLE = ['todo', 'pending', 'done'];
+import { useState, useEffect, useCallback } from 'react';
+import { api } from '../api/apiClient';
+import { useUser } from '../context/UserContext';
 
 export function useTodos() {
-  const [todos, setTodos] = useState(() => {
+  const { isReady } = useUser();
+  const [todos, setTodos] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  const fetchTodos = useCallback(async () => {
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      return stored ? JSON.parse(stored) : defaultTodos;
-    } catch {
-      return defaultTodos;
+      setLoading(true);
+      setError(null);
+      const data = await api.get('/todos');
+      setTodos(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
-  });
+  }, []);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(todos));
-  }, [todos]);
+    if (isReady) fetchTodos();
+  }, [isReady, fetchTodos]);
 
-  function cycleStatus(id) {
-    setTodos((prev) =>
-      prev.map((t) => {
-        if (t.id !== id) return t;
-        const next = STATUS_CYCLE[(STATUS_CYCLE.indexOf(t.status) + 1) % STATUS_CYCLE.length];
-        return { ...t, status: next, lastUsed: new Date().toISOString().split('T')[0] };
-      })
-    );
+  async function cycleStatus(id) {
+    const STATUS_CYCLE = ['todo', 'pending', 'done'];
+    const todo = todos.find((t) => t.id === id);
+    if (!todo) return;
+    const next = STATUS_CYCLE[(STATUS_CYCLE.indexOf(todo.status) + 1) % STATUS_CYCLE.length];
+
+    // Optimistic update
+    setTodos((prev) => prev.map((t) => (t.id === id ? { ...t, status: next } : t)));
+
+    try {
+      const updated = await api.patch(`/todos/${id}`, { status: next });
+      setTodos((prev) => prev.map((t) => (t.id === id ? updated : t)));
+    } catch (err) {
+      // Roll back on failure
+      setTodos((prev) => prev.map((t) => (t.id === id ? todo : t)));
+      throw err;
+    }
   }
 
-  function addTodo(todo) {
-    setTodos((prev) => [...prev, { ...todo, id: Date.now(), status: 'todo', lastUsed: null }]);
+  async function addTodo(todo) {
+    const created = await api.post('/todos', todo);
+    setTodos((prev) => [...prev, created]);
   }
 
-  function removeTodo(id) {
+  async function removeTodo(id) {
+    await api.delete(`/todos/${id}`);
     setTodos((prev) => prev.filter((t) => t.id !== id));
   }
 
-  function resetAll() {
-    setTodos((prev) => prev.map((t) => ({ ...t, status: 'todo' })));
+  async function resetAll() {
+    const updated = await api.post('/todos/reset', {});
+    setTodos(updated);
   }
 
-  return { todos, cycleStatus, addTodo, removeTodo, resetAll };
+  return { todos, loading, error, cycleStatus, addTodo, removeTodo, resetAll };
 }

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { UserProvider, useUser } from './context/UserContext';
 import { useSkills } from './hooks/useSkills';
 import { useTodos } from './hooks/useTodos';
 import SkillCard from './components/SkillCard';
@@ -6,17 +7,17 @@ import AddSkillForm from './components/AddSkillForm';
 import TodoSection from './components/TodoSection';
 import './App.css';
 
-export default function App() {
-  const { skills, runSkill, addSkill, removeSkill } = useSkills();
-  const { todos, cycleStatus, addTodo, removeTodo, resetAll } = useTodos();
+function Dashboard() {
+  const { skills, loading: skillsLoading, error: skillsError, runSkill, addSkill, removeSkill } = useSkills();
+  const { todos, loading: todosLoading, error: todosError, cycleStatus, addTodo, removeTodo, resetAll } = useTodos();
   const [showAddSkill, setShowAddSkill] = useState(false);
 
   const today = new Date().toLocaleDateString('en-US', {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
   });
 
-  function handleAddSkill(skill) {
-    addSkill(skill);
+  async function handleAddSkill(skill) {
+    await addSkill(skill);
     setShowAddSkill(false);
   }
 
@@ -49,8 +50,12 @@ export default function App() {
             <AddSkillForm onAdd={handleAddSkill} onCancel={() => setShowAddSkill(false)} />
           )}
 
-          {skills.length === 0 ? (
-            <p className="empty-state">No skills yet.</p>
+          {skillsError ? (
+            <p className="section-error">Failed to load skills: {skillsError}</p>
+          ) : skillsLoading ? (
+            <p className="section-loading">Loading skills...</p>
+          ) : skills.length === 0 ? (
+            <p className="empty-state">No skills yet. Add one above.</p>
           ) : (
             <div className="skill-grid">
               {skills.map((s) => (
@@ -63,15 +68,58 @@ export default function App() {
         <div className="section-divider" />
 
         {/* ── Todos ── */}
-        <TodoSection
-          todos={todos}
-          onCycle={cycleStatus}
-          onAdd={addTodo}
-          onRemove={removeTodo}
-          onReset={resetAll}
-        />
+        {todosError ? (
+          <p className="section-error">Failed to load todos: {todosError}</p>
+        ) : (
+          <TodoSection
+            todos={todos}
+            loading={todosLoading}
+            onCycle={cycleStatus}
+            onAdd={addTodo}
+            onRemove={removeTodo}
+            onReset={resetAll}
+          />
+        )}
 
       </main>
     </div>
+  );
+}
+
+function BackendGate() {
+  const { isReady, error } = useUser();
+
+  if (error) {
+    return (
+      <div className="gate-screen">
+        <div className="gate-box gate-error">
+          <h2>Cannot reach backend</h2>
+          <p>{error}</p>
+          <p className="gate-hint">Make sure the server is running:<br /><code>cd server && npm run dev</code></p>
+          <button className="btn btn-primary" onClick={() => window.location.reload()}>Retry</button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isReady) {
+    return (
+      <div className="gate-screen">
+        <div className="gate-box">
+          <div className="gate-spinner" />
+          <p>Connecting to backend...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return <Dashboard />;
+}
+
+export default function App() {
+  return (
+    <UserProvider>
+      <BackendGate />
+    </UserProvider>
   );
 }

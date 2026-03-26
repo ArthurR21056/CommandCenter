@@ -1,87 +1,75 @@
-import { useState, useEffect } from 'react';
-import { defaultSkills } from '../data/skills';
-
-const STORAGE_KEY = 'commandcenter_skills_v2';
+import { useState, useEffect, useCallback } from 'react';
+import { api } from '../api/apiClient';
+import { useUser } from '../context/UserContext';
 
 export function useSkills() {
-  const [skills, setSkills] = useState(() => {
+  const { isReady } = useUser();
+  const [skills, setSkills] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Ephemeral per-skill run state (not persisted): { [id]: { lastStatus, lastRun, lastResponse } }
+  const [runState, setRunState] = useState({});
+
+  const fetchSkills = useCallback(async () => {
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      return stored ? JSON.parse(stored) : defaultSkills;
-    } catch {
-      return defaultSkills;
+      setLoading(true);
+      setError(null);
+      const data = await api.get('/skills');
+      setSkills(data);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
-  });
+  }, []);
 
   useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(skills));
-  }, [skills]);
+    if (isReady) fetchSkills();
+  }, [isReady, fetchSkills]);
 
   async function runSkill(id) {
-    const skill = skills.find((s) => s.id === id);
-    if (!skill) return;
-
-    setSkills((prev) =>
-      prev.map((s) => (s.id === id ? { ...s, lastStatus: 'running', lastResponse: null } : s))
-    );
-
+    setRunState((prev) => ({ ...prev, [id]: { lastStatus: 'running', lastRun: null, lastResponse: null } }));
     try {
-      const options = {
-        method: skill.method,
-        headers: skill.headers || {},
-      };
-      if (skill.body && skill.method !== 'GET') {
-        options.body = skill.body;
-      }
-
-      const res = await fetch(skill.url, options);
-      const text = await res.text();
-      let preview;
-      try {
-        const json = JSON.parse(text);
-        preview = JSON.stringify(json, null, 2).slice(0, 300);
-      } catch {
-        preview = text.slice(0, 300);
-      }
-
-      setSkills((prev) =>
-        prev.map((s) =>
-          s.id === id
-            ? {
-                ...s,
-                lastStatus: res.ok ? 'success' : 'error',
-                lastRun: new Date().toISOString(),
-                lastResponse: { status: res.status, preview },
-              }
-            : s
-        )
-      );
+      const result = await api.post(`/skills/${id}/run`, {});
+      setRunState((prev) => ({
+        ...prev,
+        [id]: {
+          lastStatus: result.ok ? 'success' : 'error',
+          lastRun: new Date().toISOString(),
+          lastResponse: { status: result.httpStatus, preview: result.preview },
+        },
+      }));
     } catch (err) {
-      setSkills((prev) =>
-        prev.map((s) =>
-          s.id === id
-            ? {
-                ...s,
-                lastStatus: 'error',
-                lastRun: new Date().toISOString(),
-                lastResponse: { status: null, preview: err.message },
-              }
-            : s
-        )
-      );
+      setRunState((prev) => ({
+        ...prev,
+        [id]: {
+          lastStatus: 'error',
+          lastRun: new Date().toISOString(),
+          lastResponse: { status: null, preview: err.message },
+        },
+      }));
     }
   }
 
-  function addSkill(skill) {
-    setSkills((prev) => [
-      ...prev,
-      { ...skill, id: Date.now(), lastRun: null, lastStatus: 'idle', lastResponse: null },
-    ]);
+  async function addSkill(skill) {
+    const created = await api.post('/skills', skill);
+    setSkills((prev) => [...prev, created]);
   }
 
-  function removeSkill(id) {
+  async function removeSkill(id) {
+    await api.delete(`/skills/${id}`);
     setSkills((prev) => prev.filter((s) => s.id !== id));
+    setRunState((prev) => { const next = { ...prev }; delete next[id]; return next; });
   }
 
-  return { skills, runSkill, addSkill, removeSkill };
+  // Merge persistent skills with ephemeral run state
+  const skillsWithRunState = skills.map((s) => ({
+    ...s,
+    lastStatus: runState[s.id]?.lastStatus ?? 'idle',
+    lastRun: runState[s.id]?.lastRun ?? null,
+    lastResponse: runState[s.id]?.lastResponse ?? null,
+  }));
+
+  return { skills: skillsWithRunState, loading, error, runSkill, addSkill, removeSkill, refetch: fetchSkills };
 }
