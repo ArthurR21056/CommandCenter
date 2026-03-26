@@ -17,7 +17,6 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 20px;
   flex-wrap: wrap;
   gap: 12px;
 }
@@ -42,20 +41,8 @@
 }
 
 /* ── Progress ────────────────────────────────────────── */
-.progress-section {
-  margin-top: 4px;
-}
-
-.progress-label {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.8rem;
-  color: #64748b;
-  margin-bottom: 6px;
-}
-
 .progress-bar {
-  height: 6px;
+  height: 5px;
   background: #2d3348;
   border-radius: 99px;
   overflow: hidden;
@@ -73,6 +60,39 @@
   max-width: 1100px;
   margin: 0 auto;
   padding: 28px 32px;
+}
+
+/* ── Section ─────────────────────────────────────────── */
+.dashboard-section {
+  margin-bottom: 8px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.section-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #f1f5f9;
+  margin: 0 0 2px;
+}
+
+.section-sub {
+  font-size: 0.8rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.section-divider {
+  border: none;
+  border-top: 1px solid #2d3348;
+  margin: 28px 0;
 }
 
 /* ── Buttons ─────────────────────────────────────────── */
@@ -107,16 +127,19 @@
   border-color: #4b5563;
 }
 
-.btn-cycle {
-  background: #1e2433;
-  color: #94a3b8;
-  border-color: #2d3348;
+.btn-run {
+  background: #14532d;
+  color: #4ade80;
+  border-color: #166534;
   font-size: 0.8rem;
-  padding: 5px 12px;
+  padding: 5px 14px;
 }
-.btn-cycle:hover {
-  color: #e2e8f0;
-  border-color: #4b5563;
+.btn-run:hover:not(:disabled) {
+  background: #166534;
+}
+.btn-run:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .btn-remove {
@@ -129,50 +152,6 @@
 .btn-remove:hover {
   color: #f87171;
   background: #2d1515;
-}
-
-/* ── Filter Bar ──────────────────────────────────────── */
-.filter-bar {
-  display: flex;
-  gap: 6px;
-  margin-bottom: 20px;
-}
-
-.filter-btn {
-  padding: 6px 14px;
-  border-radius: 99px;
-  background: #1e2433;
-  color: #64748b;
-  border: 1px solid #2d3348;
-  font-size: 0.8rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  transition: all 0.15s;
-}
-
-.filter-btn:hover {
-  color: #e2e8f0;
-  border-color: #4b5563;
-}
-
-.filter-btn.active {
-  background: #1d3461;
-  color: #93c5fd;
-  border-color: #3b82f6;
-}
-
-.filter-count {
-  background: #2d3348;
-  border-radius: 99px;
-  padding: 1px 7px;
-  font-size: 0.72rem;
-}
-
-.filter-btn.active .filter-count {
-  background: #2563eb;
-  color: #fff;
 }
 
 /* ── Skill Grid ──────────────────────────────────────── */
@@ -190,22 +169,13 @@
   padding: 18px 20px;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 12px;
   transition: border-color 0.2s;
 }
-
-.skill-card:hover {
-  border-color: #4b5563;
-}
-
-.skill-card.status-done {
-  opacity: 0.65;
-  border-color: #1a3326;
-}
-
-.skill-card.status-pending {
-  border-left: 3px solid #f59e0b;
-}
+.skill-card:hover { border-color: #4b5563; }
+.skill-card.run-running { border-color: #3b82f6; }
+.skill-card.run-success { border-color: #16a34a; }
+.skill-card.run-error   { border-color: #dc2626; }
 
 .skill-card-header {
   display: flex;
@@ -227,6 +197,58 @@
   margin: 0;
 }
 
+.skill-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow: hidden;
+}
+
+.skill-method {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  background: #1d3461;
+  color: #93c5fd;
+  border: 1px solid #2563eb;
+  white-space: nowrap;
+}
+
+.skill-url {
+  font-size: 0.775rem;
+  color: #475569;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.skill-response {
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 0.775rem;
+}
+.response-success { background: #052010; border: 1px solid #14532d; }
+.response-error   { background: #2d0505; border: 1px solid #7f1d1d; }
+
+.response-status {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #94a3b8;
+}
+
+.response-preview {
+  margin: 0;
+  color: #94a3b8;
+  white-space: pre-wrap;
+  word-break: break-all;
+  font-family: 'Fira Code', 'Consolas', monospace;
+  font-size: 0.72rem;
+  max-height: 120px;
+  overflow-y: auto;
+}
+
 .skill-card-footer {
   display: flex;
   justify-content: space-between;
@@ -239,17 +261,14 @@
   font-size: 0.775rem;
   color: #475569;
 }
-
-.last-used strong {
-  color: #64748b;
-}
+.last-used strong { color: #64748b; }
 
 .skill-actions {
   display: flex;
   gap: 4px;
 }
 
-/* ── Badges ──────────────────────────────────────────── */
+/* ── Run status badges ───────────────────────────────── */
 .badge {
   font-size: 0.72rem;
   font-weight: 600;
@@ -260,31 +279,95 @@
   white-space: nowrap;
 }
 
-.badge-todo {
+.run-badge-idle    { background: #1e2433; color: #64748b; border: 1px solid #2d3348; }
+.run-badge-running { background: #1d3461; color: #93c5fd; border: 1px solid #2563eb; }
+.run-badge-success { background: #052010; color: #34d399; border: 1px solid #065f46; }
+.run-badge-error   { background: #2d0505; color: #f87171; border: 1px solid #7f1d1d; }
+
+/* ── Todo status badges ──────────────────────────────── */
+.badge-todo    { background: #1e2433; color: #64748b; border: 1px solid #2d3348; }
+.badge-pending { background: #2d1f05; color: #fbbf24; border: 1px solid #78350f; }
+.badge-done    { background: #052010; color: #34d399; border: 1px solid #065f46; }
+
+/* ── Todo List ───────────────────────────────────────── */
+.todo-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.todo-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: #161b27;
+  border: 1px solid #2d3348;
+  border-radius: 10px;
+  padding: 12px 16px;
+  transition: border-color 0.2s;
+}
+.todo-item:hover { border-color: #4b5563; }
+.todo-item.status-done { opacity: 0.6; }
+.todo-item.status-pending { border-left: 3px solid #f59e0b; }
+
+.todo-check {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid #2d3348;
   background: #1e2433;
   color: #64748b;
-  border: 1px solid #2d3348;
+  font-size: 0.9rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.15s;
+}
+.todo-check:hover { border-color: #4b5563; color: #e2e8f0; }
+.check-done { background: #052010; color: #34d399; border-color: #065f46; }
+.check-pending { background: #2d1f05; color: #fbbf24; border-color: #78350f; }
+
+.todo-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
-.badge-pending {
-  background: #2d1f05;
-  color: #fbbf24;
-  border: 1px solid #78350f;
+.todo-name {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #f1f5f9;
 }
 
-.badge-done {
-  background: #052010;
-  color: #34d399;
-  border: 1px solid #065f46;
+.todo-desc {
+  font-size: 0.775rem;
+  color: #64748b;
 }
 
-/* ── Add Skill Form ──────────────────────────────────── */
+.todo-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.todo-date {
+  font-size: 0.72rem;
+  color: #475569;
+  white-space: nowrap;
+}
+
+/* ── Add Forms ───────────────────────────────────────── */
 .add-skill-form {
   background: #161b27;
   border: 1px solid #3b82f6;
   border-radius: 12px;
   padding: 20px 24px;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 
 .add-skill-form h3 {
@@ -293,37 +376,46 @@
   color: #93c5fd;
 }
 
+.form-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 0;
+}
+
 .form-group {
   margin-bottom: 14px;
+  display: flex;
+  flex-direction: column;
 }
 
 .form-group label {
-  display: block;
   font-size: 0.8rem;
   color: #94a3b8;
   margin-bottom: 6px;
 }
 
-.form-group input {
-  width: 100%;
+.form-group input,
+.form-select,
+.form-textarea {
   background: #0f1117;
   border: 1px solid #2d3348;
   border-radius: 8px;
   padding: 8px 12px;
   color: #e2e8f0;
   font-size: 0.9rem;
-  box-sizing: border-box;
   outline: none;
   transition: border-color 0.15s;
+  width: 100%;
+  box-sizing: border-box;
 }
-
-.form-group input:focus {
+.form-group input:focus,
+.form-select:focus,
+.form-textarea:focus {
   border-color: #3b82f6;
 }
-
-.form-group input::placeholder {
-  color: #334155;
-}
+.form-group input::placeholder,
+.form-textarea::placeholder { color: #334155; }
+.form-textarea { resize: vertical; font-family: monospace; }
 
 .form-actions {
   display: flex;
@@ -335,20 +427,16 @@
 /* ── Empty State ─────────────────────────────────────── */
 .empty-state {
   text-align: center;
-  padding: 60px 20px;
+  padding: 40px 20px;
   color: #475569;
   font-size: 0.925rem;
 }
 
 /* ── Responsive ──────────────────────────────────────── */
 @media (max-width: 640px) {
-  .app-header {
-    padding: 16px 16px 14px;
-  }
-  .app-main {
-    padding: 20px 16px;
-  }
-  .skill-grid {
-    grid-template-columns: 1fr;
-  }
+  .app-header { padding: 16px 16px 14px; }
+  .app-main { padding: 20px 16px; }
+  .skill-grid { grid-template-columns: 1fr; }
+  .form-row { flex-direction: column; }
+  .todo-date { display: none; }
 }

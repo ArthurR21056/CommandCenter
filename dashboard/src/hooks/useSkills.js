@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { defaultSkills } from '../data/skills';
 
-const STORAGE_KEY = 'commandcenter_skills';
+const STORAGE_KEY = 'commandcenter_skills_v2';
 
 export function useSkills() {
   const [skills, setSkills] = useState(() => {
@@ -17,33 +17,71 @@ export function useSkills() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(skills));
   }, [skills]);
 
-  function updateStatus(id, status) {
+  async function runSkill(id) {
+    const skill = skills.find((s) => s.id === id);
+    if (!skill) return;
+
     setSkills((prev) =>
-      prev.map((s) =>
-        s.id === id
-          ? { ...s, status, lastUsed: new Date().toISOString().split('T')[0] }
-          : s
-      )
+      prev.map((s) => (s.id === id ? { ...s, lastStatus: 'running', lastResponse: null } : s))
     );
+
+    try {
+      const options = {
+        method: skill.method,
+        headers: skill.headers || {},
+      };
+      if (skill.body && skill.method !== 'GET') {
+        options.body = skill.body;
+      }
+
+      const res = await fetch(skill.url, options);
+      const text = await res.text();
+      let preview;
+      try {
+        const json = JSON.parse(text);
+        preview = JSON.stringify(json, null, 2).slice(0, 300);
+      } catch {
+        preview = text.slice(0, 300);
+      }
+
+      setSkills((prev) =>
+        prev.map((s) =>
+          s.id === id
+            ? {
+                ...s,
+                lastStatus: res.ok ? 'success' : 'error',
+                lastRun: new Date().toISOString(),
+                lastResponse: { status: res.status, preview },
+              }
+            : s
+        )
+      );
+    } catch (err) {
+      setSkills((prev) =>
+        prev.map((s) =>
+          s.id === id
+            ? {
+                ...s,
+                lastStatus: 'error',
+                lastRun: new Date().toISOString(),
+                lastResponse: { status: null, preview: err.message },
+              }
+            : s
+        )
+      );
+    }
   }
 
   function addSkill(skill) {
-    const newSkill = {
-      ...skill,
-      id: Date.now(),
-      lastUsed: null,
-      status: 'todo',
-    };
-    setSkills((prev) => [...prev, newSkill]);
+    setSkills((prev) => [
+      ...prev,
+      { ...skill, id: Date.now(), lastRun: null, lastStatus: 'idle', lastResponse: null },
+    ]);
   }
 
   function removeSkill(id) {
     setSkills((prev) => prev.filter((s) => s.id !== id));
   }
 
-  function resetAllForToday() {
-    setSkills((prev) => prev.map((s) => ({ ...s, status: 'todo' })));
-  }
-
-  return { skills, updateStatus, addSkill, removeSkill, resetAllForToday };
+  return { skills, runSkill, addSkill, removeSkill };
 }
