@@ -1,0 +1,354 @@
+/* ── Layout ─────────────────────────────────────────── */
+.app {
+  min-height: 100vh;
+  background: #0f1117;
+  color: #e2e8f0;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* ── Header ─────────────────────────────────────────── */
+.app-header {
+  background: #161b27;
+  border-bottom: 1px solid #2d3348;
+  padding: 24px 32px 20px;
+}
+
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.app-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #f8fafc;
+  margin: 0 0 4px;
+  letter-spacing: -0.02em;
+}
+
+.app-date {
+  color: #94a3b8;
+  font-size: 0.875rem;
+  margin: 0;
+}
+
+.header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* ── Progress ────────────────────────────────────────── */
+.progress-section {
+  margin-top: 4px;
+}
+
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: #64748b;
+  margin-bottom: 6px;
+}
+
+.progress-bar {
+  height: 6px;
+  background: #2d3348;
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #3b82f6, #6366f1);
+  border-radius: 99px;
+  transition: width 0.4s ease;
+}
+
+/* ── Main ────────────────────────────────────────────── */
+.app-main {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 28px 32px;
+}
+
+/* ── Buttons ─────────────────────────────────────────── */
+.btn {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  line-height: 1.4;
+}
+
+.btn-primary {
+  background: #3b82f6;
+  color: #fff;
+  border-color: #3b82f6;
+}
+.btn-primary:hover {
+  background: #2563eb;
+  border-color: #2563eb;
+}
+
+.btn-secondary {
+  background: #1e2433;
+  color: #94a3b8;
+  border-color: #2d3348;
+}
+.btn-secondary:hover {
+  color: #e2e8f0;
+  border-color: #4b5563;
+}
+
+.btn-cycle {
+  background: #1e2433;
+  color: #94a3b8;
+  border-color: #2d3348;
+  font-size: 0.8rem;
+  padding: 5px 12px;
+}
+.btn-cycle:hover {
+  color: #e2e8f0;
+  border-color: #4b5563;
+}
+
+.btn-remove {
+  background: transparent;
+  color: #475569;
+  border-color: transparent;
+  padding: 5px 10px;
+  font-size: 0.75rem;
+}
+.btn-remove:hover {
+  color: #f87171;
+  background: #2d1515;
+}
+
+/* ── Filter Bar ──────────────────────────────────────── */
+.filter-bar {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 20px;
+}
+
+.filter-btn {
+  padding: 6px 14px;
+  border-radius: 99px;
+  background: #1e2433;
+  color: #64748b;
+  border: 1px solid #2d3348;
+  font-size: 0.8rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.15s;
+}
+
+.filter-btn:hover {
+  color: #e2e8f0;
+  border-color: #4b5563;
+}
+
+.filter-btn.active {
+  background: #1d3461;
+  color: #93c5fd;
+  border-color: #3b82f6;
+}
+
+.filter-count {
+  background: #2d3348;
+  border-radius: 99px;
+  padding: 1px 7px;
+  font-size: 0.72rem;
+}
+
+.filter-btn.active .filter-count {
+  background: #2563eb;
+  color: #fff;
+}
+
+/* ── Skill Grid ──────────────────────────────────────── */
+.skill-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 14px;
+}
+
+/* ── Skill Card ──────────────────────────────────────── */
+.skill-card {
+  background: #161b27;
+  border: 1px solid #2d3348;
+  border-radius: 12px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition: border-color 0.2s;
+}
+
+.skill-card:hover {
+  border-color: #4b5563;
+}
+
+.skill-card.status-done {
+  opacity: 0.65;
+  border-color: #1a3326;
+}
+
+.skill-card.status-pending {
+  border-left: 3px solid #f59e0b;
+}
+
+.skill-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.skill-name {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #f1f5f9;
+  margin: 0 0 4px;
+}
+
+.skill-description {
+  font-size: 0.825rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.skill-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.last-used {
+  font-size: 0.775rem;
+  color: #475569;
+}
+
+.last-used strong {
+  color: #64748b;
+}
+
+.skill-actions {
+  display: flex;
+  gap: 4px;
+}
+
+/* ── Badges ──────────────────────────────────────────── */
+.badge {
+  font-size: 0.72rem;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 99px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+
+.badge-todo {
+  background: #1e2433;
+  color: #64748b;
+  border: 1px solid #2d3348;
+}
+
+.badge-pending {
+  background: #2d1f05;
+  color: #fbbf24;
+  border: 1px solid #78350f;
+}
+
+.badge-done {
+  background: #052010;
+  color: #34d399;
+  border: 1px solid #065f46;
+}
+
+/* ── Add Skill Form ──────────────────────────────────── */
+.add-skill-form {
+  background: #161b27;
+  border: 1px solid #3b82f6;
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 20px;
+}
+
+.add-skill-form h3 {
+  margin: 0 0 16px;
+  font-size: 1rem;
+  color: #93c5fd;
+}
+
+.form-group {
+  margin-bottom: 14px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.8rem;
+  color: #94a3b8;
+  margin-bottom: 6px;
+}
+
+.form-group input {
+  width: 100%;
+  background: #0f1117;
+  border: 1px solid #2d3348;
+  border-radius: 8px;
+  padding: 8px 12px;
+  color: #e2e8f0;
+  font-size: 0.9rem;
+  box-sizing: border-box;
+  outline: none;
+  transition: border-color 0.15s;
+}
+
+.form-group input:focus {
+  border-color: #3b82f6;
+}
+
+.form-group input::placeholder {
+  color: #334155;
+}
+
+.form-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+/* ── Empty State ─────────────────────────────────────── */
+.empty-state {
+  text-align: center;
+  padding: 60px 20px;
+  color: #475569;
+  font-size: 0.925rem;
+}
+
+/* ── Responsive ──────────────────────────────────────── */
+@media (max-width: 640px) {
+  .app-header {
+    padding: 16px 16px 14px;
+  }
+  .app-main {
+    padding: 20px 16px;
+  }
+  .skill-grid {
+    grid-template-columns: 1fr;
+  }
+}
