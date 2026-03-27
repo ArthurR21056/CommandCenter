@@ -19,9 +19,20 @@ function initials(name) {
     .slice(0, 2);
 }
 
+const PRIORITY_CONFIG = {
+  low:    { label: 'Low',    className: 'badge-priority-low' },
+  medium: { label: 'Medium', className: 'badge-priority-medium' },
+  high:   { label: 'High',   className: 'badge-priority-high' },
+};
+
+function PriorityBadge({ priority }) {
+  const { label, className } = PRIORITY_CONFIG[priority] ?? PRIORITY_CONFIG.medium;
+  return <span className={`badge ${className}`}>{label}</span>;
+}
+
 function AssigneeChip({ todo, users, onAssign }) {
   const [open, setOpen] = useState(false);
-  const assignee = users.find((u) => u.id === todo.assigned_to);
+  const assignee = todo.assigned_to;
 
   return (
     <div className="assignee-wrap">
@@ -43,7 +54,7 @@ function AssigneeChip({ todo, users, onAssign }) {
           {users.map((u) => (
             <button
               key={u.id}
-              className={`assignee-option ${u.id === todo.assigned_to ? 'active' : ''}`}
+              className={`assignee-option ${u.id === assignee?.id ? 'active' : ''}`}
               onClick={() => { onAssign(todo.id, u.id); setOpen(false); }}
             >
               <span className="assignee-option-avatar">{initials(u.name)}</span>
@@ -73,6 +84,7 @@ function TodoItem({ todo, users, onCycle, onRemove, onAssign }) {
       </div>
       <div className="todo-right">
         <AssigneeChip todo={todo} users={users} onAssign={onAssign} />
+        <PriorityBadge priority={todo.priority} />
         <StatusBadge status={todo.status} />
         <span className="todo-date">{formatDate(todo.last_used)}</span>
         <button className="btn btn-remove" onClick={() => onRemove(todo.id)}>✕</button>
@@ -87,6 +99,7 @@ export default function TodoSection({ todos, users = [], loading, onCycle, onRem
   const [description, setDescription] = useState('');
   const [assigneeId, setAssigneeId] = useState('');
   const [status, setStatus] = useState('pending');
+  const [priority, setPriority] = useState('medium');
 
   const done = todos.filter((t) => t.status === 'done').length;
   const pct = todos.length ? Math.round((done / todos.length) * 100) : 0;
@@ -99,11 +112,13 @@ export default function TodoSection({ todos, users = [], loading, onCycle, onRem
       description: description.trim(),
       assigned_to: Number(assigneeId),
       status,
+      priority,
     });
     setName('');
     setDescription('');
     setAssigneeId('');
     setStatus('pending');
+    setPriority('medium');
     setShowForm(false);
   }
 
@@ -172,6 +187,18 @@ export default function TodoSection({ todos, users = [], loading, onCycle, onRem
               <option value="pending">Pending</option>
               <option value="in_progress">In Progress</option>
               <option value="done">Done</option>
+            </select>
+          </div>
+          <div className="form-group">
+            <label>Priority</label>
+            <select
+              className="form-select"
+              value={priority}
+              onChange={(e) => setPriority(e.target.value)}
+            >
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
             </select>
           </div>
           <div className="form-actions">
