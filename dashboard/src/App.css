@@ -576,6 +576,49 @@
 
 .gate-error { border-color: #7f1d1d; }
 
+/* ── Login ───────────────────────────────────────────── */
+.login-box {
+  background: #161b27;
+  border: 1px solid #2d3348;
+  border-radius: 16px;
+  padding: 40px 48px;
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+}
+
+.login-header { text-align: center; }
+
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.login-error {
+  font-size: 0.85rem;
+  color: #f87171;
+  background: #2d0505;
+  border: 1px solid #7f1d1d;
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin: 0;
+}
+
+.login-submit {
+  width: 100%;
+  padding: 10px;
+  font-size: 0.95rem;
+  margin-top: 4px;
+}
+
+.login-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .gate-spinner {
   width: 32px;
   height: 32px;

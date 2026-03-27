@@ -1,41 +1,38 @@
-import { createContext, useContext, useEffect, useState } from 'react';
-import { api } from '../api/apiClient';
+import { createContext, useContext, useState, useCallback } from 'react';
+import { api, setToken, clearToken, getToken } from '../api/apiClient';
 
 const UserContext = createContext(null);
 
-const CLIENT_KEY_STORAGE = 'commandcenter_client_key';
-
-function getOrCreateClientKey() {
-  let key = localStorage.getItem(CLIENT_KEY_STORAGE);
-  if (!key) {
-    key = crypto.randomUUID();
-    localStorage.setItem(CLIENT_KEY_STORAGE, key);
-  }
-  return key;
-}
-
 export function UserProvider({ children }) {
-  const [userId, setUserId] = useState(null);
-  const [isReady, setIsReady] = useState(false);
+  // If a token already exists in localStorage, start as authenticated
+  const [token, setTokenState] = useState(() => getToken());
   const [error, setError] = useState(null);
-  const [isNew, setIsNew] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  useEffect(() => {
-    const clientKey = getOrCreateClientKey();
+  const isAuthenticated = Boolean(token);
 
-    api.post('/users/ensure', { clientKey })
-      .then((user) => {
-        setUserId(user.id);
-        setIsNew(user.isNew);
-        setIsReady(true);
-      })
-      .catch((err) => {
-        setError(err.message || 'Could not connect to backend');
-      });
+  const login = useCallback(async (name, password) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await api.post('/auth/login', { name, password });
+      setToken(res.token);
+      setTokenState(res.token);
+    } catch (err) {
+      setError(err.message || 'Invalid credentials');
+      throw err;
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const logout = useCallback(() => {
+    clearToken();
+    setTokenState(null);
   }, []);
 
   return (
-    <UserContext.Provider value={{ userId, isReady, error, isNew }}>
+    <UserContext.Provider value={{ token, isAuthenticated, login, logout, error, loading }}>
       {children}
     </UserContext.Provider>
   );

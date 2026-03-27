@@ -3,7 +3,7 @@ import { api } from '../api/apiClient';
 import { useUser } from '../context/UserContext';
 
 export function useSkills() {
-  const { isReady } = useUser();
+  const { isAuthenticated } = useUser();
   const [skills, setSkills] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -25,8 +25,8 @@ export function useSkills() {
   }, []);
 
   useEffect(() => {
-    if (isReady) fetchSkills();
-  }, [isReady, fetchSkills]);
+    if (isAuthenticated) fetchSkills();
+  }, [isAuthenticated, fetchSkills]);
 
   async function runSkill(id) {
     setRunState((prev) => ({ ...prev, [id]: { lastStatus: 'running', lastRun: null, lastResponse: null } }));

@@ -3,13 +3,13 @@ import { api } from '../api/apiClient';
 import { useUser } from '../context/UserContext';
 
 export function useUsers() {
-  const { isReady } = useUser();
+  const { isAuthenticated } = useUser();
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
-    if (!isReady) return;
+    if (!isAuthenticated) return;
     api.get('/users').then(setUsers).catch(() => {});
-  }, [isReady]);
+  }, [isAuthenticated]);
 
   return { users };
 }

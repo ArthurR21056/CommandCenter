@@ -3,7 +3,7 @@ import { api } from '../api/apiClient';
 import { useUser } from '../context/UserContext';
 
 export function useTodos() {
-  const { isReady } = useUser();
+  const { isAuthenticated } = useUser();
   const [todos, setTodos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -22,8 +22,8 @@ export function useTodos() {
   }, []);
 
   useEffect(() => {
-    if (isReady) fetchTodos();
-  }, [isReady, fetchTodos]);
+    if (isAuthenticated) fetchTodos();
+  }, [isAuthenticated, fetchTodos]);
 
   async function cycleStatus(id) {
     const STATUS_CYCLE = ['todo', 'pending', 'done'];
