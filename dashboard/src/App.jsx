@@ -7,14 +7,16 @@ import SkillCard from './components/SkillCard';
 import AddSkillForm from './components/AddSkillForm';
 import TodoSection from './components/TodoSection';
 import LoginPage from './components/LoginPage';
+import CreateUserForm from './components/CreateUserForm';
 import './App.css';
 
 function Dashboard() {
-  const { logout } = useUser();
+  const { logout, isAdmin } = useUser();
   const { skills, loading: skillsLoading, error: skillsError, runSkill, addSkill, removeSkill } = useSkills();
   const { todos, loading: todosLoading, error: todosError, cycleStatus, assignTodo, addTodo, removeTodo, resetAll } = useTodos();
-  const { users } = useUsers();
+  const { users, refetch: refetchUsers } = useUsers();
   const [showAddSkill, setShowAddSkill] = useState(false);
+  const [showCreateUser, setShowCreateUser] = useState(false);
 
   const today = new Date().toLocaleDateString('en-US', {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
@@ -33,9 +35,23 @@ function Dashboard() {
             <h1 className="app-title">Command Center</h1>
             <p className="app-date">{today}</p>
           </div>
-          <button className="btn btn-secondary" onClick={logout}>Sign out</button>
+          <div className="header-actions">
+            {isAdmin && (
+              <button className="btn btn-secondary" onClick={() => setShowCreateUser(true)}>
+                + Create User
+              </button>
+            )}
+            <button className="btn btn-secondary" onClick={logout}>Sign out</button>
+          </div>
         </div>
       </header>
+
+      {showCreateUser && (
+        <CreateUserForm
+          onClose={() => setShowCreateUser(false)}
+          onCreated={() => refetchUsers()}
+        />
+      )}
 
       <main className="app-main">
 
