@@ -8,15 +8,17 @@ import AddSkillForm from './components/AddSkillForm';
 import TodoSection from './components/TodoSection';
 import LoginPage from './components/LoginPage';
 import CreateUserForm from './components/CreateUserForm';
+import AccountMenu from './components/AccountMenu';
+import SettingsPage from './components/SettingsPage';
 import './App.css';
 
 function Dashboard() {
-  const { logout, isAdmin } = useUser();
   const { skills, loading: skillsLoading, error: skillsError, runSkill, addSkill, removeSkill } = useSkills();
   const { todos, loading: todosLoading, error: todosError, cycleStatus, assignTodo, addTodo, removeTodo } = useTodos();
   const { users, refetch: refetchUsers } = useUsers();
   const [showAddSkill, setShowAddSkill] = useState(false);
   const [showCreateUser, setShowCreateUser] = useState(false);
+  const [page, setPage] = useState('dashboard');
 
   const today = new Date().toLocaleDateString('en-US', {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
@@ -36,12 +38,10 @@ function Dashboard() {
             <p className="app-date">{today}</p>
           </div>
           <div className="header-actions">
-            {isAdmin && (
-              <button className="btn btn-secondary" onClick={() => setShowCreateUser(true)}>
-                + Create User
-              </button>
-            )}
-            <button className="btn btn-secondary" onClick={logout}>Sign out</button>
+            <AccountMenu
+              onNavigate={setPage}
+              onCreateUser={() => setShowCreateUser(true)}
+            />
           </div>
         </div>
       </header>
@@ -53,57 +53,61 @@ function Dashboard() {
         />
       )}
 
-      <main className="app-main">
+      {page === 'settings' ? (
+        <SettingsPage onNavigate={setPage} />
+      ) : (
+        <main className="app-main">
 
-        {/* ── Skills ── */}
-        <section className="dashboard-section">
-          <div className="section-header">
-            <div>
-              <h2 className="section-title">Skills</h2>
-              <p className="section-sub">Executable API actions</p>
+          {/* ── Skills ── */}
+          <section className="dashboard-section">
+            <div className="section-header">
+              <div>
+                <h2 className="section-title">Skills</h2>
+                <p className="section-sub">Executable API actions</p>
+              </div>
+              <button className="btn btn-primary" onClick={() => setShowAddSkill((v) => !v)}>
+                {showAddSkill ? 'Cancel' : '+ Add Skill'}
+              </button>
             </div>
-            <button className="btn btn-primary" onClick={() => setShowAddSkill((v) => !v)}>
-              {showAddSkill ? 'Cancel' : '+ Add Skill'}
-            </button>
-          </div>
 
-          {showAddSkill && (
-            <AddSkillForm onAdd={handleAddSkill} onCancel={() => setShowAddSkill(false)} />
-          )}
+            {showAddSkill && (
+              <AddSkillForm onAdd={handleAddSkill} onCancel={() => setShowAddSkill(false)} />
+            )}
 
-          {skillsError ? (
-            <p className="section-error">Skills are not available with this backend.</p>
-          ) : skillsLoading ? (
-            <p className="section-loading">Loading skills...</p>
-          ) : skills.length === 0 ? (
-            <p className="empty-state">No skills yet. Add one above.</p>
+            {skillsError ? (
+              <p className="section-error">Skills are not available with this backend.</p>
+            ) : skillsLoading ? (
+              <p className="section-loading">Loading skills...</p>
+            ) : skills.length === 0 ? (
+              <p className="empty-state">No skills yet. Add one above.</p>
+            ) : (
+              <div className="skill-grid">
+                {skills.map((s) => (
+                  <SkillCard key={s.id} skill={s} onRun={runSkill} onRemove={removeSkill} />
+                ))}
+              </div>
+            )}
+          </section>
+
+          <div className="section-divider" />
+
+          {/* ── Todos ── */}
+          {todosError ? (
+            <p className="section-error">Failed to load todos: {todosError}</p>
           ) : (
-            <div className="skill-grid">
-              {skills.map((s) => (
-                <SkillCard key={s.id} skill={s} onRun={runSkill} onRemove={removeSkill} />
-              ))}
-            </div>
+            <TodoSection
+              todos={todos}
+              users={users}
+              loading={todosLoading}
+              onCycle={cycleStatus}
+              onAssign={assignTodo}
+              onAdd={addTodo}
+              onRemove={removeTodo}
+            />
           )}
-        </section>
 
-        <div className="section-divider" />
-
-        {/* ── Todos ── */}
-        {todosError ? (
-          <p className="section-error">Failed to load todos: {todosError}</p>
-        ) : (
-          <TodoSection
-            todos={todos}
-            users={users}
-            loading={todosLoading}
-            onCycle={cycleStatus}
-            onAssign={assignTodo}
-            onAdd={addTodo}
-            onRemove={removeTodo}
-          />
-        )}
-
-      </main>
+        </main>
+      )}
     </div>
   );
 }

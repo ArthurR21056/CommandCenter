@@ -143,3 +143,39 @@ Live at: `https://arthurr21056.github.io/CommandCenter/`
 - Schema migrations run on startup in `db/database.js` using `ALTER TABLE IF NOT EXISTS` checks.
 - The `skill_runs` table provides a full audit log of every skill execution.
 - Vite proxies `/api/*` to `localhost:3001` in dev, so no CORS config is needed locally.
+
+---
+
+## Future Work
+
+### Authentication & Users
+- [ ] Replace UUID client key with JWT / OAuth (only `UserContext.jsx` + `resolveUser.js` need changing)
+- [ ] User profile editing — change display name and password from the Settings page
+- [ ] Avatar / profile picture support
+
+### Skills
+- [ ] Re-enable skills section once the backend supports a `/skills` endpoint
+- [ ] Skill categories / tags for grouping
+- [ ] Scheduled skills — run a skill automatically on a cron schedule
+- [ ] Skill run history viewer in the UI (backend `skill_runs` table already tracks this)
+- [ ] Import / export skills as JSON
+
+### Todos
+- [ ] Due dates and reminders
+- [ ] Priority levels (low / medium / high)
+- [ ] Filtering and sorting (by status, assignee, due date)
+- [ ] Recurring todos (daily / weekly reset)
+- [ ] Drag-and-drop reordering
+
+### UI / UX
+- [ ] Dark / light theme toggle (setting stored in `localStorage`)
+- [ ] Mobile-responsive layout improvements
+- [ ] Keyboard shortcuts for common actions
+- [ ] Notifications / toast messages for success and error states
+- [ ] Add react-router for proper URL-based navigation
+
+### Infrastructure
+- [ ] CI pipeline (lint + build on every PR)
+- [ ] Production Docker image with multi-stage build and health checks
+- [ ] Environment-based config (staging vs production API URLs)
+- [ ] Database backup strategy for SQLite
