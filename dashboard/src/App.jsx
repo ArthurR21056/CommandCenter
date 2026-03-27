@@ -13,7 +13,7 @@ import './App.css';
 function Dashboard() {
   const { logout, isAdmin } = useUser();
   const { skills, loading: skillsLoading, error: skillsError, runSkill, addSkill, removeSkill } = useSkills();
-  const { todos, loading: todosLoading, error: todosError, cycleStatus, assignTodo, addTodo, removeTodo, resetAll } = useTodos();
+  const { todos, loading: todosLoading, error: todosError, cycleStatus, assignTodo, addTodo, removeTodo } = useTodos();
   const { users, refetch: refetchUsers } = useUsers();
   const [showAddSkill, setShowAddSkill] = useState(false);
   const [showCreateUser, setShowCreateUser] = useState(false);
@@ -72,7 +72,7 @@ function Dashboard() {
           )}
 
           {skillsError ? (
-            <p className="section-error">Failed to load skills: {skillsError}</p>
+            <p className="section-error">Skills are not available with this backend.</p>
           ) : skillsLoading ? (
             <p className="section-loading">Loading skills...</p>
           ) : skills.length === 0 ? (
@@ -100,7 +100,6 @@ function Dashboard() {
             onAssign={assignTodo}
             onAdd={addTodo}
             onRemove={removeTodo}
-            onReset={resetAll}
           />
         )}
 
