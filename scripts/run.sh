@@ -81,23 +81,27 @@ cd "$(dirname "$0")/.."
 case "$COMMAND" in
   up)
     echo "Starting Command Center..."
-    $COMPOSE up --build "${ENV_OVERRIDE[@]}" "${EXTRA_ARGS[@]}"
+    $COMPOSE up --build \
+      ${ENV_OVERRIDE[@]+"${ENV_OVERRIDE[@]}"} \
+      ${EXTRA_ARGS[@]+"${EXTRA_ARGS[@]}"}
     ;;
   down)
     echo "Stopping Command Center..."
-    $COMPOSE down "${EXTRA_ARGS[@]}"
+    $COMPOSE down ${EXTRA_ARGS[@]+"${EXTRA_ARGS[@]}"}
     ;;
   restart)
     echo "Restarting Command Center..."
     $COMPOSE down
-    $COMPOSE up --build "${ENV_OVERRIDE[@]}" "${EXTRA_ARGS[@]}"
+    $COMPOSE up --build \
+      ${ENV_OVERRIDE[@]+"${ENV_OVERRIDE[@]}"} \
+      ${EXTRA_ARGS[@]+"${EXTRA_ARGS[@]}"}
     ;;
   logs)
-    $COMPOSE logs -f "${EXTRA_ARGS[@]}"
+    $COMPOSE logs -f ${EXTRA_ARGS[@]+"${EXTRA_ARGS[@]}"}
     ;;
   build)
     echo "Building images..."
-    $COMPOSE build "${EXTRA_ARGS[@]}"
+    $COMPOSE build ${EXTRA_ARGS[@]+"${EXTRA_ARGS[@]}"}
     ;;
   clean)
     echo "Removing containers, volumes, and images..."
