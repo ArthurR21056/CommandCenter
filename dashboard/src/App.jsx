@@ -6,9 +6,11 @@ import { useUsers } from './hooks/useUsers';
 import SkillCard from './components/SkillCard';
 import AddSkillForm from './components/AddSkillForm';
 import TodoSection from './components/TodoSection';
+import LoginPage from './components/LoginPage';
 import './App.css';
 
 function Dashboard() {
+  const { logout } = useUser();
   const { skills, loading: skillsLoading, error: skillsError, runSkill, addSkill, removeSkill } = useSkills();
   const { todos, loading: todosLoading, error: todosError, cycleStatus, assignTodo, addTodo, removeTodo, resetAll } = useTodos();
   const { users } = useUsers();
@@ -31,6 +33,7 @@ function Dashboard() {
             <h1 className="app-title">Command Center</h1>
             <p className="app-date">{today}</p>
           </div>
+          <button className="btn btn-secondary" onClick={logout}>Sign out</button>
         </div>
       </header>
 
@@ -90,40 +93,15 @@ function Dashboard() {
   );
 }
 
-function BackendGate() {
-  const { isReady, error } = useUser();
-
-  if (error) {
-    return (
-      <div className="gate-screen">
-        <div className="gate-box gate-error">
-          <h2>Cannot reach backend</h2>
-          <p>{error}</p>
-          <p className="gate-hint">Make sure the server is running:<br /><code>cd server && npm run dev</code></p>
-          <button className="btn btn-primary" onClick={() => window.location.reload()}>Retry</button>
-        </div>
-      </div>
-    );
-  }
-
-  if (!isReady) {
-    return (
-      <div className="gate-screen">
-        <div className="gate-box">
-          <div className="gate-spinner" />
-          <p>Connecting to backend...</p>
-        </div>
-      </div>
-    );
-  }
-
-  return <Dashboard />;
+function AppRouter() {
+  const { isAuthenticated } = useUser();
+  return isAuthenticated ? <Dashboard /> : <LoginPage />;
 }
 
 export default function App() {
   return (
     <UserProvider>
-      <BackendGate />
+      <AppRouter />
     </UserProvider>
   );
 }
