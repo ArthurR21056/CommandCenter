@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { api } from '../api/apiClient';
 import { useUser } from '../context/UserContext';
 
@@ -6,10 +6,14 @@ export function useUsers() {
   const { isAuthenticated } = useUser();
   const [users, setUsers] = useState([]);
 
-  useEffect(() => {
+  const refetch = useCallback(() => {
     if (!isAuthenticated) return;
     api.get('/users').then(setUsers).catch(() => {});
   }, [isAuthenticated]);
 
-  return { users };
+  useEffect(() => {
+    refetch();
+  }, [refetch]);
+
+  return { users, refetch };
 }

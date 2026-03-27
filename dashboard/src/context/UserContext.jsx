@@ -3,6 +3,14 @@ import { api, setToken, clearToken, getToken } from '../api/apiClient';
 
 const UserContext = createContext(null);
 
+function decodeToken(token) {
+  try {
+    return JSON.parse(atob(token.split('.')[1]));
+  } catch {
+    return null;
+  }
+}
+
 export function UserProvider({ children }) {
   // If a token already exists in localStorage, start as authenticated
   const [token, setTokenState] = useState(() => getToken());
@@ -10,6 +18,8 @@ export function UserProvider({ children }) {
   const [loading, setLoading] = useState(false);
 
   const isAuthenticated = Boolean(token);
+  const currentUser = token ? decodeToken(token) : null;
+  const isAdmin = currentUser?.role === 'admin';
 
   const login = useCallback(async (name, password) => {
     setLoading(true);
@@ -18,6 +28,7 @@ export function UserProvider({ children }) {
       const res = await api.post('/auth/login', { name, password });
       setToken(res.token);
       setTokenState(res.token);
+
     } catch (err) {
       setError(err.message || 'Invalid credentials');
       throw err;
@@ -32,7 +43,7 @@ export function UserProvider({ children }) {
   }, []);
 
   return (
-    <UserContext.Provider value={{ token, isAuthenticated, login, logout, error, loading }}>
+    <UserContext.Provider value={{ token, isAuthenticated, currentUser, isAdmin, login, logout, error, loading }}>
       {children}
     </UserContext.Provider>
   );
