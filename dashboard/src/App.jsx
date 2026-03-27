@@ -1,35 +1,26 @@
 import { useState } from 'react';
+import { UserProvider, useUser } from './context/UserContext';
 import { useSkills } from './hooks/useSkills';
+import { useTodos } from './hooks/useTodos';
+import { useUsers } from './hooks/useUsers';
 import SkillCard from './components/SkillCard';
 import AddSkillForm from './components/AddSkillForm';
-import FilterBar from './components/FilterBar';
+import TodoSection from './components/TodoSection';
 import './App.css';
 
-export default function App() {
-  const { skills, updateStatus, addSkill, removeSkill, resetAllForToday } = useSkills();
-  const [filter, setFilter] = useState('all');
-  const [showAddForm, setShowAddForm] = useState(false);
+function Dashboard() {
+  const { skills, loading: skillsLoading, error: skillsError, runSkill, addSkill, removeSkill } = useSkills();
+  const { todos, loading: todosLoading, error: todosError, cycleStatus, assignTodo, addTodo, removeTodo, resetAll } = useTodos();
+  const { users } = useUsers();
+  const [showAddSkill, setShowAddSkill] = useState(false);
 
   const today = new Date().toLocaleDateString('en-US', {
-    weekday: 'long',
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
   });
 
-  const counts = {
-    all: skills.length,
-    todo: skills.filter((s) => s.status === 'todo').length,
-    pending: skills.filter((s) => s.status === 'pending').length,
-    done: skills.filter((s) => s.status === 'done').length,
-  };
-
-  const filtered = filter === 'all' ? skills : skills.filter((s) => s.status === filter);
-  const donePercent = skills.length ? Math.round((counts.done / skills.length) * 100) : 0;
-
-  function handleAdd(skill) {
-    addSkill(skill);
-    setShowAddForm(false);
+  async function handleAddSkill(skill) {
+    await addSkill(skill);
+    setShowAddSkill(false);
   }
 
   return (
@@ -40,53 +31,99 @@ export default function App() {
             <h1 className="app-title">Command Center</h1>
             <p className="app-date">{today}</p>
           </div>
-          <div className="header-actions">
-            <button className="btn btn-secondary" onClick={resetAllForToday}>
-              Reset Day
-            </button>
-            <button className="btn btn-primary" onClick={() => setShowAddForm((v) => !v)}>
-              {showAddForm ? 'Cancel' : '+ Add Skill'}
-            </button>
-          </div>
-        </div>
-
-        <div className="progress-section">
-          <div className="progress-label">
-            <span>Daily Progress</span>
-            <span>
-              {counts.done} / {skills.length} done ({donePercent}%)
-            </span>
-          </div>
-          <div className="progress-bar">
-            <div className="progress-fill" style={{ width: `${donePercent}%` }} />
-          </div>
         </div>
       </header>
 
       <main className="app-main">
-        {showAddForm && (
-          <AddSkillForm onAdd={handleAdd} onCancel={() => setShowAddForm(false)} />
-        )}
 
-        <FilterBar active={filter} onChange={setFilter} counts={counts} />
-
-        {filtered.length === 0 ? (
-          <div className="empty-state">
-            <p>No skills found{filter !== 'all' ? ` with status "${filter}"` : ''}.</p>
+        {/* ── Skills ── */}
+        <section className="dashboard-section">
+          <div className="section-header">
+            <div>
+              <h2 className="section-title">Skills</h2>
+              <p className="section-sub">Executable API actions</p>
+            </div>
+            <button className="btn btn-primary" onClick={() => setShowAddSkill((v) => !v)}>
+              {showAddSkill ? 'Cancel' : '+ Add Skill'}
+            </button>
           </div>
+
+          {showAddSkill && (
+            <AddSkillForm onAdd={handleAddSkill} onCancel={() => setShowAddSkill(false)} />
+          )}
+
+          {skillsError ? (
+            <p className="section-error">Failed to load skills: {skillsError}</p>
+          ) : skillsLoading ? (
+            <p className="section-loading">Loading skills...</p>
+          ) : skills.length === 0 ? (
+            <p className="empty-state">No skills yet. Add one above.</p>
+          ) : (
+            <div className="skill-grid">
+              {skills.map((s) => (
+                <SkillCard key={s.id} skill={s} onRun={runSkill} onRemove={removeSkill} />
+              ))}
+            </div>
+          )}
+        </section>
+
+        <div className="section-divider" />
+
+        {/* ── Todos ── */}
+        {todosError ? (
+          <p className="section-error">Failed to load todos: {todosError}</p>
         ) : (
-          <div className="skill-grid">
-            {filtered.map((skill) => (
-              <SkillCard
-                key={skill.id}
-                skill={skill}
-                onStatusChange={updateStatus}
-                onRemove={removeSkill}
-              />
-            ))}
-          </div>
+          <TodoSection
+            todos={todos}
+            users={users}
+            loading={todosLoading}
+            onCycle={cycleStatus}
+            onAssign={assignTodo}
+            onAdd={addTodo}
+            onRemove={removeTodo}
+            onReset={resetAll}
+          />
         )}
+
       </main>
     </div>
+  );
+}
+
+function BackendGate() {
+  const { isReady, error } = useUser();
+
+  if (error) {
+    return (
+      <div className="gate-screen">
+        <div className="gate-box gate-error">
+          <h2>Cannot reach backend</h2>
+          <p>{error}</p>
+          <p className="gate-hint">Make sure the server is running:<br /><code>cd server && npm run dev</code></p>
+          <button className="btn btn-primary" onClick={() => window.location.reload()}>Retry</button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isReady) {
+    return (
+      <div className="gate-screen">
+        <div className="gate-box">
+          <div className="gate-spinner" />
+          <p>Connecting to backend...</p>
+        </div>
+      </div>
+    );
+  }
+
+  return <Dashboard />;
+}
+
+export default function App() {
+  return (
+    <UserProvider>
+      <BackendGate />
+    </UserProvider>
   );
 }

@@ -1,7 +1,7 @@
 const CONFIG = {
-  todo: { label: 'To Do', className: 'badge-todo' },
+  todo:    { label: 'To Do',   className: 'badge-todo' },
   pending: { label: 'Pending', className: 'badge-pending' },
-  done: { label: 'Done', className: 'badge-done' },
+  done:    { label: 'Done',    className: 'badge-done' },
 };
 
 export default function StatusBadge({ status }) {
