@@ -445,6 +445,11 @@
 .badge-in-progress { background: #0d1f3c; color: #60a5fa; border: 1px solid #1e3a5f; }
 .badge-done        { background: #052010; color: #34d399; border: 1px solid #065f46; }
 
+/* ── Priority badges ─────────────────────────────────── */
+.badge-priority-low    { background: #1e2433; color: #94a3b8; border: 1px solid #2d3348; }
+.badge-priority-medium { background: #2d2005; color: #fb923c; border: 1px solid #7c2d12; }
+.badge-priority-high   { background: #2d0505; color: #f87171; border: 1px solid #7f1d1d; }
+
 /* ── Todo List ───────────────────────────────────────── */
 .todo-list {
   display: flex;
