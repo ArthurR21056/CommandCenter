@@ -22,9 +22,7 @@ services:
     ports:
       - "8080:80"
     environment:
-      # Change this to your new API URL if using the external backend on port 3000:
-      #   API_HOST: http://host.docker.internal:3000
-      API_HOST: http://server:3001
+      API_HOST: http://host.docker.internal:3000
       # Tells nginx envsubst to only replace ${API_HOST}, leaving nginx
       # variables like $uri and $host untouched in the template.
       NGINX_ENVSUBST_FILTER: API_HOST
