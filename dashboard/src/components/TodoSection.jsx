@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import StatusBadge from './StatusBadge';
 
-const STATUS_CYCLE = ['todo', 'pending', 'done'];
+const STATUS_CYCLE = ['pending', 'in_progress', 'done'];
 
 function formatDate(dateStr) {
   if (!dateStr) return 'Never';
@@ -21,7 +21,7 @@ function initials(name) {
 
 function AssigneeChip({ todo, users, onAssign }) {
   const [open, setOpen] = useState(false);
-  const assignee = users.find((u) => u.id === todo.assignee_id);
+  const assignee = users.find((u) => u.id === todo.assigned_to);
 
   return (
     <div className="assignee-wrap">
@@ -43,7 +43,7 @@ function AssigneeChip({ todo, users, onAssign }) {
           {users.map((u) => (
             <button
               key={u.id}
-              className={`assignee-option ${u.id === todo.assignee_id ? 'active' : ''}`}
+              className={`assignee-option ${u.id === todo.assigned_to ? 'active' : ''}`}
               onClick={() => { onAssign(todo.id, u.id); setOpen(false); }}
             >
               <span className="assignee-option-avatar">{initials(u.name)}</span>
@@ -65,10 +65,10 @@ function TodoItem({ todo, users, onCycle, onRemove, onAssign }) {
         onClick={() => onCycle(todo.id)}
         title={`Mark as ${next}`}
       >
-        {todo.status === 'done' ? '✓' : todo.status === 'pending' ? '◐' : '○'}
+        {todo.status === 'done' ? '✓' : todo.status === 'in_progress' ? '◐' : '○'}
       </button>
       <div className="todo-info">
-        <span className="todo-name">{todo.name}</span>
+        <span className="todo-name">{todo.title}</span>
         {todo.description && <span className="todo-desc">{todo.description}</span>}
       </div>
       <div className="todo-right">
@@ -81,7 +81,7 @@ function TodoItem({ todo, users, onCycle, onRemove, onAssign }) {
   );
 }
 
-export default function TodoSection({ todos, users = [], loading, onCycle, onRemove, onAdd, onReset, onAssign }) {
+export default function TodoSection({ todos, users = [], loading, onCycle, onRemove, onAdd, onAssign }) {
   const [showForm, setShowForm] = useState(false);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -94,9 +94,9 @@ export default function TodoSection({ todos, users = [], loading, onCycle, onRem
     e.preventDefault();
     if (!name.trim()) return;
     onAdd({
-      name: name.trim(),
+      title: name.trim(),
       description: description.trim(),
-      assignee_id: assigneeId ? Number(assigneeId) : null,
+      assigned_to: assigneeId ? Number(assigneeId) : null,
     });
     setName('');
     setDescription('');
@@ -112,7 +112,6 @@ export default function TodoSection({ todos, users = [], loading, onCycle, onRem
           <p className="section-sub">{done}/{todos.length} complete · {pct}%</p>
         </div>
         <div className="header-actions">
-          <button className="btn btn-secondary" onClick={onReset}>Reset</button>
           <button className="btn btn-primary" onClick={() => setShowForm((v) => !v)}>
             {showForm ? 'Cancel' : '+ Add'}
           </button>

@@ -285,9 +285,10 @@
 .run-badge-error   { background: #2d0505; color: #f87171; border: 1px solid #7f1d1d; }
 
 /* ── Todo status badges ──────────────────────────────── */
-.badge-todo    { background: #1e2433; color: #64748b; border: 1px solid #2d3348; }
-.badge-pending { background: #2d1f05; color: #fbbf24; border: 1px solid #78350f; }
-.badge-done    { background: #052010; color: #34d399; border: 1px solid #065f46; }
+.badge-todo        { background: #1e2433; color: #64748b; border: 1px solid #2d3348; }
+.badge-pending     { background: #2d1f05; color: #fbbf24; border: 1px solid #78350f; }
+.badge-in-progress { background: #0d1f3c; color: #60a5fa; border: 1px solid #1e3a5f; }
+.badge-done        { background: #052010; color: #34d399; border: 1px solid #065f46; }
 
 /* ── Todo List ───────────────────────────────────────── */
 .todo-list {
