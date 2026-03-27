@@ -86,21 +86,24 @@ export default function TodoSection({ todos, users = [], loading, onCycle, onRem
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [assigneeId, setAssigneeId] = useState('');
+  const [status, setStatus] = useState('pending');
 
   const done = todos.filter((t) => t.status === 'done').length;
   const pct = todos.length ? Math.round((done / todos.length) * 100) : 0;
 
   function handleAdd(e) {
     e.preventDefault();
-    if (!name.trim()) return;
+    if (!name.trim() || !assigneeId) return;
     onAdd({
       title: name.trim(),
       description: description.trim(),
-      assigned_to: assigneeId ? Number(assigneeId) : null,
+      assigned_to: Number(assigneeId),
+      status,
     });
     setName('');
     setDescription('');
     setAssigneeId('');
+    setStatus('pending');
     setShowForm(false);
   }
 
@@ -126,12 +129,12 @@ export default function TodoSection({ todos, users = [], loading, onCycle, onRem
         <form className="add-skill-form" onSubmit={handleAdd} style={{ marginBottom: 16 }}>
           <h3>Add Todo</h3>
           <div className="form-group">
-            <label>Name</label>
+            <label>Title</label>
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Task name"
+              placeholder="Task title"
               autoFocus
               required
             />
@@ -145,24 +148,35 @@ export default function TodoSection({ todos, users = [], loading, onCycle, onRem
               placeholder="Optional description"
             />
           </div>
-          {users.length > 0 && (
-            <div className="form-group">
-              <label>Assign to</label>
-              <select
-                className="form-select"
-                value={assigneeId}
-                onChange={(e) => setAssigneeId(e.target.value)}
-              >
-                <option value="">Unassigned</option>
-                {users.map((u) => (
-                  <option key={u.id} value={u.id}>{u.name}</option>
-                ))}
-              </select>
-            </div>
-          )}
+          <div className="form-group">
+            <label>Assign to <span style={{ color: 'var(--color-error, red)' }}>*</span></label>
+            <select
+              className="form-select"
+              value={assigneeId}
+              onChange={(e) => setAssigneeId(e.target.value)}
+              required
+            >
+              <option value="">Select assignee</option>
+              {users.map((u) => (
+                <option key={u.id} value={u.id}>{u.name}</option>
+              ))}
+            </select>
+          </div>
+          <div className="form-group">
+            <label>Status</label>
+            <select
+              className="form-select"
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+            >
+              <option value="pending">Pending</option>
+              <option value="in_progress">In Progress</option>
+              <option value="done">Done</option>
+            </select>
+          </div>
           <div className="form-actions">
             <button type="button" className="btn btn-secondary" onClick={() => setShowForm(false)}>Cancel</button>
-            <button type="submit" className="btn btn-primary">Add</button>
+            <button type="submit" className="btn btn-primary" disabled={!name.trim() || !assigneeId}>Add</button>
           </div>
         </form>
       )}
