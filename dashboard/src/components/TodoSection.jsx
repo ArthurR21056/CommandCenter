@@ -107,7 +107,7 @@ function TodoItem({ todo, users, onCycle, onRemove, onAssign }) {
   );
 }
 
-export default function TodoSection({ todos, users = [], loading, onCycle, onRemove, onAdd, onAssign }) {
+export default function TodoSection({ todos, users = [], loading, myTasksOnly, onToggleMyTasks, onCycle, onRemove, onAdd, onAssign }) {
   const [showForm, setShowForm] = useState(false);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -144,6 +144,12 @@ export default function TodoSection({ todos, users = [], loading, onCycle, onRem
           <p className="section-sub">{done}/{todos.length} complete · {pct}%</p>
         </div>
         <div className="header-actions">
+          <button
+            className={`btn ${myTasksOnly ? 'btn-primary' : 'btn-secondary'}`}
+            onClick={onToggleMyTasks}
+          >
+            My Tasks
+          </button>
           <button className="btn btn-primary" onClick={() => setShowForm((v) => !v)}>
             {showForm ? 'Cancel' : '+ Add'}
           </button>
