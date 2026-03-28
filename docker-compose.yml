@@ -26,6 +26,8 @@ services:
       # Tells nginx envsubst to only replace ${API_HOST}, leaving nginx
       # variables like $uri and $host untouched in the template.
       NGINX_ENVSUBST_FILTER: API_HOST
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     depends_on:
       - server
 
