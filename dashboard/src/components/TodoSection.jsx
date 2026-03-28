@@ -97,7 +97,9 @@ function TodoItem({ todo, users, onCycle, onRemove, onAssign }) {
       </div>
       <div className="todo-right">
         <PriorityBadge priority={todo.priority} />
-        <StatusBadge status={todo.status} />
+        <button className="status-cycle-btn" onClick={() => onCycle(todo.id)} title={`Mark as ${next}`}>
+          <StatusBadge status={todo.status} />
+        </button>
         <span className="todo-date">{formatDate(todo.last_used)}</span>
         <button className="btn btn-remove" onClick={() => onRemove(todo.id)}>✕</button>
       </div>
