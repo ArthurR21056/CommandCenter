@@ -31,7 +31,7 @@ export function useWeather() {
           const [weatherRes, geoRes] = await Promise.all([
             fetch(
               `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}` +
-              `&current=temperature_2m,weather_code&temperature_unit=celsius`
+              `&current=temperature_2m,weather_code&temperature_unit=fahrenheit`
             ),
             fetch(
               `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
