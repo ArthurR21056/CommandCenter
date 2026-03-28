@@ -1,5 +1,10 @@
 import { useState, useEffect } from 'react';
 
+// Hard-coded to zip 78653 (Manor, TX)
+const LATITUDE  = 30.3413;
+const LONGITUDE = -97.5169;
+const CITY      = 'Manor, TX';
+
 const WMO_LABELS = {
   0: 'Clear',
   1: 'Mainly clear', 2: 'Partly cloudy', 3: 'Overcast',
@@ -19,43 +24,22 @@ function weatherLabel(code) {
 
 export function useWeather() {
   const [weather, setWeather] = useState(null);
-  const [city, setCity] = useState(null);
-  const [permissionDenied, setPermissionDenied] = useState(false);
 
   useEffect(() => {
-    if (!navigator.geolocation) return;
-
-    navigator.geolocation.getCurrentPosition(
-      async ({ coords: { latitude, longitude } }) => {
-        try {
-          const [weatherRes, geoRes] = await Promise.all([
-            fetch(
-              `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}` +
-              `&current=temperature_2m,weather_code&temperature_unit=fahrenheit`
-            ),
-            fetch(
-              `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`
-            ),
-          ]);
-
-          const weatherData = await weatherRes.json();
-          const geoData = await geoRes.json();
-
-          setWeather({
-            temp: Math.round(weatherData.current.temperature_2m),
-            unit: weatherData.current_units.temperature_2m,
-            condition: weatherLabel(weatherData.current.weather_code),
-          });
-
-          const addr = geoData.address ?? {};
-          setCity(addr.city || addr.town || addr.village || addr.county || null);
-        } catch {
-          // Silently fail — weather is non-critical
-        }
-      },
-      () => setPermissionDenied(true),
-    );
+    fetch(
+      `https://api.open-meteo.com/v1/forecast?latitude=${LATITUDE}&longitude=${LONGITUDE}` +
+      `&current=temperature_2m,weather_code&temperature_unit=fahrenheit`
+    )
+      .then((res) => res.json())
+      .then((data) => {
+        setWeather({
+          temp: Math.round(data.current.temperature_2m),
+          unit: data.current_units.temperature_2m,
+          condition: weatherLabel(data.current.weather_code),
+        });
+      })
+      .catch(() => {});
   }, []);
 
-  return { weather, city, permissionDenied };
+  return { weather, city: CITY };
 }
