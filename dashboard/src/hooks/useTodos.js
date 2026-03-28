@@ -4,7 +4,7 @@ import { useUser } from '../context/UserContext';
 
 const STATUS_CYCLE = ['pending', 'in_progress', 'done'];
 
-export function useTodos() {
+export function useTodos({ assignedTo } = {}) {
   const { isAuthenticated } = useUser();
   const [todos, setTodos] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -14,14 +14,15 @@ export function useTodos() {
     try {
       setLoading(true);
       setError(null);
-      const data = await api.get('/tasks');
+      const params = assignedTo ? `?assigned_to=${assignedTo}` : '';
+      const data = await api.get(`/tasks${params}`);
       setTodos(data.tasks ?? data);
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [assignedTo]);
 
   useEffect(() => {
     if (isAuthenticated) fetchTodos();

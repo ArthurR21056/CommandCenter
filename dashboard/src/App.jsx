@@ -14,8 +14,12 @@ import SettingsPage from './components/SettingsPage';
 import './App.css';
 
 function Dashboard() {
+  const { currentUser } = useUser();
   const { skills, loading: skillsLoading, error: skillsError, runSkill, addSkill, removeSkill } = useSkills();
-  const { todos, loading: todosLoading, error: todosError, cycleStatus, assignTodo, addTodo, removeTodo } = useTodos();
+  const [myTasksOnly, setMyTasksOnly] = useState(false);
+  const { todos, loading: todosLoading, error: todosError, cycleStatus, assignTodo, addTodo, removeTodo } = useTodos({
+    assignedTo: myTasksOnly ? currentUser?.id : undefined,
+  });
   const { users, refetch: refetchUsers } = useUsers();
   const { weather, city } = useWeather();
   const [showAddSkill, setShowAddSkill] = useState(false);
@@ -109,6 +113,8 @@ function Dashboard() {
               todos={todos}
               users={users}
               loading={todosLoading}
+              myTasksOnly={myTasksOnly}
+              onToggleMyTasks={() => setMyTasksOnly((v) => !v)}
               onCycle={cycleStatus}
               onAssign={assignTodo}
               onAdd={addTodo}
