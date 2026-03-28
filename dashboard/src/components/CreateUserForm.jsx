@@ -7,6 +7,7 @@ export default function CreateUserForm({ onClose, onCreated }) {
   const [name, setName] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('member');
+  const [email, setEmail] = useState('');
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
 
@@ -15,7 +16,9 @@ export default function CreateUserForm({ onClose, onCreated }) {
     setError(null);
     setLoading(true);
     try {
-      const user = await api.post('/users', { name, password, role });
+      const body = { name, password, role };
+      if (email.trim()) body.email = email.trim();
+      const user = await api.post('/users', body);
       onCreated?.(user);
       onClose();
     } catch (err) {
@@ -56,6 +59,16 @@ export default function CreateUserForm({ onClose, onCreated }) {
               placeholder="Min. 6 characters"
               required
               minLength={6}
+            />
+          </div>
+
+          <div className="form-group">
+            <label>Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Optional — e.g. alice@example.com"
             />
           </div>
 

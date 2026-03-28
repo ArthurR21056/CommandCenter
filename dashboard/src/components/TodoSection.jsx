@@ -10,6 +10,13 @@ function formatDate(dateStr) {
   });
 }
 
+function formatExpiry(isoStr) {
+  if (!isoStr) return null;
+  return new Date(isoStr).toLocaleDateString('en-US', {
+    month: 'short', day: 'numeric', year: 'numeric',
+  });
+}
+
 function initials(name) {
   return name
     .split(' ')
@@ -100,6 +107,9 @@ function TodoItem({ todo, users, onCycle, onRemove, onAssign }) {
         <button className="status-cycle-btn" onClick={() => onCycle(todo.id)} title={`Mark as ${next}`}>
           <StatusBadge status={todo.status} />
         </button>
+        {todo.expires_at && (
+          <span className="todo-expiry" title="Expiry date">Expires {formatExpiry(todo.expires_at)}</span>
+        )}
         <span className="todo-date">{formatDate(todo.last_used)}</span>
         <button className="btn btn-remove" onClick={() => onRemove(todo.id)}>✕</button>
       </div>
@@ -114,6 +124,7 @@ export default function TodoSection({ todos, users = [], loading, myTasksOnly, o
   const [assigneeId, setAssigneeId] = useState('');
   const [status, setStatus] = useState('pending');
   const [priority, setPriority] = useState('medium');
+  const [expiresAt, setExpiresAt] = useState('');
 
   const done = todos.filter((t) => t.status === 'done').length;
   const pct = todos.length ? Math.round((done / todos.length) * 100) : 0;
@@ -121,18 +132,21 @@ export default function TodoSection({ todos, users = [], loading, myTasksOnly, o
   function handleAdd(e) {
     e.preventDefault();
     if (!name.trim() || !assigneeId) return;
-    onAdd({
+    const task = {
       title: name.trim(),
       description: description.trim(),
       assigned_to: Number(assigneeId),
       status,
       priority,
-    });
+    };
+    if (expiresAt) task.expires_at = new Date(expiresAt).toISOString();
+    onAdd(task);
     setName('');
     setDescription('');
     setAssigneeId('');
     setStatus('pending');
     setPriority('medium');
+    setExpiresAt('');
     setShowForm(false);
   }
 
@@ -220,6 +234,14 @@ export default function TodoSection({ todos, users = [], loading, myTasksOnly, o
               <option value="medium">Medium</option>
               <option value="high">High</option>
             </select>
+          </div>
+          <div className="form-group">
+            <label>Expires at</label>
+            <input
+              type="datetime-local"
+              value={expiresAt}
+              onChange={(e) => setExpiresAt(e.target.value)}
+            />
           </div>
           <div className="form-actions">
             <button type="button" className="btn btn-secondary" onClick={() => setShowForm(false)}>Cancel</button>
