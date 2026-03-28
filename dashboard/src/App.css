@@ -844,4 +844,10 @@
   .skill-grid { grid-template-columns: 1fr; }
   .form-row { flex-direction: column; }
   .todo-date { display: none; }
+  .todo-desc {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 180px;
+  }
 }
