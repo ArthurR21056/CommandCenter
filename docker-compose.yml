@@ -1,20 +1,5 @@
 services:
 
-  # ── Legacy Express/SQLite backend ──────────────────────────────────────────
-  # Handles skills, todos, and user identity.
-  # For the new API (auth/login, tasks, calendar, email), set API_HOST below
-  # to point to your external backend instead.
-  server:
-    build: ./server
-    restart: unless-stopped
-    ports:
-      - "3001:3001"
-    environment:
-      PORT: 3001
-      DB_PATH: /app/data/commandcenter.db
-    volumes:
-      - sqlite-data:/app/data
-
   # ── React dashboard (nginx) ────────────────────────────────────────────────
   frontend:
     build: ./dashboard
@@ -28,8 +13,3 @@ services:
       NGINX_ENVSUBST_FILTER: API_HOST
     extra_hosts:
       - "host.docker.internal:host-gateway"
-    depends_on:
-      - server
-
-volumes:
-  sqlite-data:
