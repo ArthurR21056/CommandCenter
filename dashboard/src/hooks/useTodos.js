@@ -61,16 +61,8 @@ export function useTodos({ assignedTo } = {}) {
   }
 
   async function updateTodo(id, fields) {
-    const todo = todos.find((t) => t.id === id);
-    if (!todo) return;
-    setTodos((prev) => prev.map((t) => (t.id === id ? { ...t, ...fields } : t)));
-    try {
-      const updated = await api.patch(`/tasks/${id}`, fields);
-      setTodos((prev) => prev.map((t) => (t.id === id ? updated : t)));
-    } catch (err) {
-      setTodos((prev) => prev.map((t) => (t.id === id ? todo : t)));
-      throw err;
-    }
+    const updated = await api.patch(`/tasks/${id}`, fields);
+    setTodos((prev) => prev.map((t) => (t.id === id ? updated : t)));
   }
 
   async function removeTodo(id) {
