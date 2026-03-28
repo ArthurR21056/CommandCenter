@@ -451,6 +451,17 @@
   display: block;
 }
 
+/* ── Clickable status badge ──────────────────────────── */
+.status-cycle-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: opacity 0.15s;
+}
+.status-cycle-btn:hover { opacity: 0.75; }
+
 /* ── Todo List ───────────────────────────────────────── */
 .todo-list {
   display: flex;
