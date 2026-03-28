@@ -60,10 +60,15 @@ export function useTodos({ assignedTo } = {}) {
     setTodos((prev) => [...prev, created]);
   }
 
+  async function updateTodo(id, fields) {
+    const updated = await api.patch(`/tasks/${id}`, fields);
+    setTodos((prev) => prev.map((t) => (t.id === id ? updated : t)));
+  }
+
   async function removeTodo(id) {
     await api.delete(`/tasks/${id}`);
     setTodos((prev) => prev.filter((t) => t.id !== id));
   }
 
-  return { todos, loading, error, cycleStatus, assignTodo, addTodo, removeTodo };
+  return { todos, loading, error, cycleStatus, assignTodo, addTodo, updateTodo, removeTodo };
 }
