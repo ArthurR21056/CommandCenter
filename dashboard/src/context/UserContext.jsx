@@ -1,5 +1,5 @@
-import { createContext, useContext, useState, useCallback } from 'react';
-import { api, setToken, clearToken, getToken } from '../api/apiClient';
+import { createContext, useContext, useState, useCallback, useEffect } from 'react';
+import { api, setToken, clearToken, getToken, setOn401Handler } from '../api/apiClient';
 
 const UserContext = createContext(null);
 
@@ -41,6 +41,11 @@ export function UserProvider({ children }) {
     clearToken();
     setTokenState(null);
   }, []);
+
+  useEffect(() => {
+    setOn401Handler(logout);
+    return () => setOn401Handler(null);
+  }, [logout]);
 
   return (
     <UserContext.Provider value={{ token, isAuthenticated, currentUser, isAdmin, login, logout, error, loading }}>

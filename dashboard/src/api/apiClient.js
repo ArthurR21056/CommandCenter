@@ -20,6 +20,12 @@ export function clearToken() {
   localStorage.removeItem(TOKEN_KEY);
 }
 
+let on401Handler = null;
+
+export function setOn401Handler(handler) {
+  on401Handler = handler;
+}
+
 async function apiFetch(path, options = {}) {
   const token = getToken();
 
@@ -32,6 +38,9 @@ async function apiFetch(path, options = {}) {
   const res = await fetch(`${BASE_URL}${path}`, { ...options, headers });
 
   if (!res.ok) {
+    if (res.status === 401 && on401Handler) {
+      on401Handler();
+    }
     const body = await res.json().catch(() => ({ message: res.statusText }));
     throw new ApiError(res.status, body.message || res.statusText);
   }
