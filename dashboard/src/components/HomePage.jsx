@@ -26,11 +26,16 @@ function initials(name) {
   return name.split(' ').map((w) => w[0]).join('').toUpperCase().slice(0, 2);
 }
 
+function isOverdue(todo) {
+  return todo.expires_at && todo.status !== 'done' && new Date(todo.expires_at) < new Date();
+}
+
 function TodoRow({ todo, onCycle }) {
   const next = STATUS_CYCLE[(STATUS_CYCLE.indexOf(todo.status) + 1) % STATUS_CYCLE.length];
   const assignee = todo.assigned_to;
+  const overdue = isOverdue(todo);
   return (
-    <div className={`todo-item status-${todo.status}`}>
+    <div className={`todo-item status-${todo.status}${overdue ? ' overdue' : ''}`}>
       <button
         className={`todo-check check-${todo.status}`}
         onClick={() => onCycle(todo.id)}
@@ -52,10 +57,20 @@ function TodoRow({ todo, onCycle }) {
         <button className="status-cycle-btn" onClick={() => onCycle(todo.id)} title={`Mark as ${next}`}>
           <StatusBadge status={todo.status} />
         </button>
-        {todo.expires_at && (
+        {overdue && <span className="badge badge-overdue">Overdue</span>}
+        {!overdue && todo.expires_at && (
           <span className="todo-expiry">Exp {formatExpiry(todo.expires_at)}</span>
         )}
       </div>
+    </div>
+  );
+}
+
+function StatCard({ label, value, accent }) {
+  return (
+    <div className="stat-card" style={{ '--stat-accent': accent }}>
+      <span className="stat-value">{value}</span>
+      <span className="stat-label">{label}</span>
     </div>
   );
 }
@@ -65,9 +80,12 @@ export default function HomePage({ todos, loading, weather, city, onCycle }) {
     weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',
   });
 
-  const myTodos = todos.filter((t) => t.status !== 'done');
-  const done = todos.filter((t) => t.status === 'done').length;
-  const pct = todos.length ? Math.round((done / todos.length) * 100) : 0;
+  const total      = todos.length;
+  const inProgress = todos.filter((t) => t.status === 'in_progress').length;
+  const done       = todos.filter((t) => t.status === 'done').length;
+  const pct        = total ? Math.round((done / total) * 100) : 0;
+
+  const activeTodos = todos.filter((t) => t.status !== 'done');
 
   return (
     <main className="app-main">
@@ -85,11 +103,18 @@ export default function HomePage({ todos, loading, weather, city, onCycle }) {
         )}
       </div>
 
+      {/* Stats row */}
+      <div className="stats-row">
+        <StatCard label="Total Tasks"  value={total}      accent="#3b82f6" />
+        <StatCard label="In Progress"  value={inProgress} accent="#f59e0b" />
+        <StatCard label="Done"         value={done}       accent="#34d399" />
+      </div>
+
       {/* My Tasks */}
-      <div className="section-header" style={{ marginTop: 28 }}>
+      <div className="section-header">
         <div>
           <h2 className="section-title">My Tasks</h2>
-          <p className="section-sub">{done}/{todos.length} complete · {pct}%</p>
+          <p className="section-sub">{done}/{total} complete · {pct}%</p>
         </div>
       </div>
 
@@ -100,12 +125,12 @@ export default function HomePage({ todos, loading, weather, city, onCycle }) {
       <div className="todo-list">
         {loading ? (
           <p className="section-loading">Loading tasks…</p>
-        ) : myTodos.length === 0 && todos.length === 0 ? (
+        ) : activeTodos.length === 0 && total === 0 ? (
           <p className="empty-state">No tasks assigned to you.</p>
-        ) : myTodos.length === 0 ? (
+        ) : activeTodos.length === 0 ? (
           <p className="empty-state">All caught up! 🎉</p>
         ) : (
-          myTodos.map((t) => (
+          activeTodos.map((t) => (
             <TodoRow key={t.id} todo={t} onCycle={onCycle} />
           ))
         )}

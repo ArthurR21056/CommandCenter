@@ -22,7 +22,7 @@ function Dashboard() {
   });
 
   // All tasks (tasks page)
-  const { todos, loading, error, cycleStatus, assignTodo, addTodo, removeTodo } = useTodos();
+  const { todos, loading, error, cycleStatus, assignTodo, addTodo, updateTodo, removeTodo } = useTodos();
 
   const { users, refetch: refetchUsers } = useUsers();
   const { weather, city } = useWeather();
@@ -70,6 +70,7 @@ function Dashboard() {
           onCycle={cycleStatus}
           onAssign={assignTodo}
           onAdd={addTodo}
+          onUpdate={updateTodo}
           onRemove={removeTodo}
         />
       )}

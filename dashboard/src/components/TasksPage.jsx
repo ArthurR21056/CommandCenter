@@ -18,6 +18,11 @@ function PriorityBadge({ priority }) {
   );
 }
 
+function toDatetimeLocal(isoStr) {
+  if (!isoStr) return '';
+  return new Date(isoStr).toISOString().slice(0, 16);
+}
+
 function formatExpiry(isoStr) {
   if (!isoStr) return null;
   return new Date(isoStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
@@ -27,6 +32,10 @@ function initials(name) {
   return name.split(' ').map((w) => w[0]).join('').toUpperCase().slice(0, 2);
 }
 
+function isOverdue(todo) {
+  return todo.expires_at && todo.status !== 'done' && new Date(todo.expires_at) < new Date();
+}
+
 function AssigneeChip({ todo, users, onAssign }) {
   const [open, setOpen] = useState(false);
   const assignee = todo.assigned_to;
@@ -34,21 +43,21 @@ function AssigneeChip({ todo, users, onAssign }) {
     <div className="assignee-wrap">
       <button
         className={`assignee-chip ${assignee ? 'assigned' : 'unassigned'}`}
-        onClick={() => setOpen((v) => !v)}
+        onClick={(e) => { e.stopPropagation(); setOpen((v) => !v); }}
         title={assignee ? `Assigned to ${assignee.name}` : 'Unassigned'}
       >
         {assignee ? initials(assignee.name) : '?'}
       </button>
       {open && (
         <div className="assignee-dropdown">
-          <button className="assignee-option" onClick={() => { onAssign(todo.id, null); setOpen(false); }}>
+          <button className="assignee-option" onClick={(e) => { e.stopPropagation(); onAssign(todo.id, null); setOpen(false); }}>
             Unassigned
           </button>
           {users.map((u) => (
             <button
               key={u.id}
               className={`assignee-option ${u.id === assignee?.id ? 'active' : ''}`}
-              onClick={() => { onAssign(todo.id, u.id); setOpen(false); }}
+              onClick={(e) => { e.stopPropagation(); onAssign(todo.id, u.id); setOpen(false); }}
             >
               <span className="assignee-option-avatar">{initials(u.name)}</span>
               {u.name}
@@ -60,11 +69,20 @@ function AssigneeChip({ todo, users, onAssign }) {
   );
 }
 
-function TodoItem({ todo, users, onCycle, onRemove, onAssign }) {
+function TodoItem({ todo, users, onCycle, onRemove, onAssign, onEdit }) {
   const next = STATUS_CYCLE[(STATUS_CYCLE.indexOf(todo.status) + 1) % STATUS_CYCLE.length];
+  const overdue = isOverdue(todo);
   return (
-    <div className={`todo-item status-${todo.status}`}>
-      <button className={`todo-check check-${todo.status}`} onClick={() => onCycle(todo.id)} title={`Mark as ${next}`}>
+    <div
+      className={`todo-item status-${todo.status}${overdue ? ' overdue' : ''}`}
+      onClick={() => onEdit(todo)}
+      style={{ cursor: 'pointer' }}
+    >
+      <button
+        className={`todo-check check-${todo.status}`}
+        onClick={(e) => { e.stopPropagation(); onCycle(todo.id); }}
+        title={`Mark as ${next}`}
+      >
         {todo.status === 'done' ? '✓' : todo.status === 'in_progress' ? '◐' : '○'}
       </button>
       <AssigneeChip todo={todo} users={users} onAssign={onAssign} />
@@ -74,46 +92,60 @@ function TodoItem({ todo, users, onCycle, onRemove, onAssign }) {
       </div>
       <div className="todo-right">
         <PriorityBadge priority={todo.priority} />
-        <button className="status-cycle-btn" onClick={() => onCycle(todo.id)} title={`Mark as ${next}`}>
+        <button
+          className="status-cycle-btn"
+          onClick={(e) => { e.stopPropagation(); onCycle(todo.id); }}
+          title={`Mark as ${next}`}
+        >
           <StatusBadge status={todo.status} />
         </button>
-        {todo.expires_at && (
+        {overdue && <span className="badge badge-overdue">Overdue</span>}
+        {!overdue && todo.expires_at && (
           <span className="todo-expiry">Exp {formatExpiry(todo.expires_at)}</span>
         )}
-        <button className="btn btn-remove" onClick={() => onRemove(todo.id)}>✕</button>
+        <button className="btn btn-remove" onClick={(e) => { e.stopPropagation(); onRemove(todo.id); }}>✕</button>
       </div>
     </div>
   );
 }
 
-function AddTaskModal({ users, onAdd, onClose }) {
-  const [title, setTitle] = useState('');
-  const [description, setDescription] = useState('');
-  const [assigneeId, setAssigneeId] = useState('');
-  const [status, setStatus] = useState('pending');
-  const [priority, setPriority] = useState('medium');
-  const [expiresAt, setExpiresAt] = useState('');
+function TaskModal({ todo, users, onSave, onClose, isNew = false }) {
+  const [title,       setTitle]       = useState(todo?.title ?? '');
+  const [description, setDescription] = useState(todo?.description ?? '');
+  const [assigneeId,  setAssigneeId]  = useState(String(todo?.assigned_to?.id ?? todo?.assigned_to ?? ''));
+  const [status,      setStatus]      = useState(todo?.status ?? 'pending');
+  const [priority,    setPriority]    = useState(todo?.priority ?? 'medium');
+  const [expiresAt,   setExpiresAt]   = useState(toDatetimeLocal(todo?.expires_at));
+  const [saving,      setSaving]      = useState(false);
+  const [error,       setError]       = useState(null);
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
     if (!title.trim() || !assigneeId) return;
-    const task = {
-      title: title.trim(),
-      description: description.trim(),
-      assigned_to: Number(assigneeId),
-      status,
-      priority,
-    };
-    if (expiresAt) task.expires_at = new Date(expiresAt).toISOString();
-    onAdd(task);
-    onClose();
+    setSaving(true);
+    setError(null);
+    try {
+      const fields = {
+        title:       title.trim(),
+        description: description.trim(),
+        assigned_to: Number(assigneeId),
+        status,
+        priority,
+        expires_at:  expiresAt ? new Date(expiresAt).toISOString() : null,
+      };
+      await onSave(fields);
+      onClose();
+    } catch (err) {
+      setError(err.message || 'Failed to save task');
+      setSaving(false);
+    }
   }
 
   return (
     <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
       <div className="modal">
         <div className="modal-header">
-          <h2 className="modal-title">Add Task</h2>
+          <h2 className="modal-title">{isNew ? 'Add Task' : 'Edit Task'}</h2>
           <button className="modal-close" onClick={onClose}>✕</button>
         </div>
         <form onSubmit={handleSubmit}>
@@ -154,9 +186,12 @@ function AddTaskModal({ users, onAdd, onClose }) {
             <label>Expires at</label>
             <input type="datetime-local" value={expiresAt} onChange={(e) => setExpiresAt(e.target.value)} />
           </div>
+          {error && <p className="login-error">{error}</p>}
           <div className="form-actions">
             <button type="button" className="btn btn-secondary" onClick={onClose}>Cancel</button>
-            <button type="submit" className="btn btn-primary" disabled={!title.trim() || !assigneeId}>Add Task</button>
+            <button type="submit" className="btn btn-primary" disabled={saving || !title.trim() || !assigneeId}>
+              {saving ? 'Saving…' : isNew ? 'Add Task' : 'Save Changes'}
+            </button>
           </div>
         </form>
       </div>
@@ -164,25 +199,22 @@ function AddTaskModal({ users, onAdd, onClose }) {
   );
 }
 
-export default function TasksPage({ todos, users, loading, error, onCycle, onAssign, onAdd, onRemove }) {
-  const [showModal, setShowModal] = useState(false);
-  const [filterStatus, setFilterStatus] = useState('');
+export default function TasksPage({ todos, users, loading, error, onCycle, onAssign, onAdd, onUpdate, onRemove }) {
+  const [editingTodo, setEditingTodo]   = useState(null);  // null = closed, {} = new, todo = edit
+  const [showNew,     setShowNew]       = useState(false);
+  const [filterStatus,   setFilterStatus]   = useState('');
   const [filterPriority, setFilterPriority] = useState('');
   const [filterAssignee, setFilterAssignee] = useState('');
 
   const filtered = todos.filter((t) => {
-    if (filterStatus && t.status !== filterStatus) return false;
-    if (filterPriority && t.priority !== filterPriority) return false;
+    if (filterStatus   && t.status          !== filterStatus)           return false;
+    if (filterPriority && t.priority        !== filterPriority)         return false;
     if (filterAssignee && String(t.assigned_to?.id) !== filterAssignee) return false;
     return true;
   });
 
   const done = todos.filter((t) => t.status === 'done').length;
-  const pct = todos.length ? Math.round((done / todos.length) * 100) : 0;
-
-  async function handleAdd(task) {
-    await onAdd(task);
-  }
+  const pct  = todos.length ? Math.round((done / todos.length) * 100) : 0;
 
   return (
     <main className="app-main">
@@ -191,7 +223,7 @@ export default function TasksPage({ todos, users, loading, error, onCycle, onAss
           <h2 className="section-title">Tasks</h2>
           <p className="section-sub">{done}/{todos.length} complete · {pct}%</p>
         </div>
-        <button className="btn btn-primary" onClick={() => setShowModal(true)}>+ Add Task</button>
+        <button className="btn btn-primary" onClick={() => setShowNew(true)}>+ Add Task</button>
       </div>
 
       {/* Filter bar */}
@@ -228,14 +260,39 @@ export default function TasksPage({ todos, users, loading, error, onCycle, onAss
             <p className="empty-state">{todos.length === 0 ? 'No tasks yet.' : 'No tasks match the filters.'}</p>
           ) : (
             filtered.map((t) => (
-              <TodoItem key={t.id} todo={t} users={users} onCycle={onCycle} onRemove={onRemove} onAssign={onAssign} />
+              <TodoItem
+                key={t.id}
+                todo={t}
+                users={users}
+                onCycle={onCycle}
+                onRemove={onRemove}
+                onAssign={onAssign}
+                onEdit={setEditingTodo}
+              />
             ))
           )}
         </div>
       )}
 
-      {showModal && (
-        <AddTaskModal users={users} onAdd={handleAdd} onClose={() => setShowModal(false)} />
+      {/* Add task modal */}
+      {showNew && (
+        <TaskModal
+          isNew
+          todo={null}
+          users={users}
+          onSave={(fields) => onAdd(fields)}
+          onClose={() => setShowNew(false)}
+        />
+      )}
+
+      {/* Edit task modal */}
+      {editingTodo && (
+        <TaskModal
+          todo={editingTodo}
+          users={users}
+          onSave={(fields) => onUpdate(editingTodo.id, fields)}
+          onClose={() => setEditingTodo(null)}
+        />
       )}
     </main>
   );
