@@ -445,10 +445,11 @@
 .badge-in-progress { background: #0d1f3c; color: #60a5fa; border: 1px solid #1e3a5f; }
 .badge-done        { background: #052010; color: #34d399; border: 1px solid #065f46; }
 
-/* ── Priority badges ─────────────────────────────────── */
-.badge-priority-low    { background: #1e2433; color: #94a3b8; border: 1px solid #2d3348; }
-.badge-priority-medium { background: #2d2005; color: #fb923c; border: 1px solid #7c2d12; }
-.badge-priority-high   { background: #2d0505; color: #f87171; border: 1px solid #7f1d1d; }
+/* ── Priority fire icon ──────────────────────────────── */
+.priority-fire {
+  flex-shrink: 0;
+  display: block;
+}
 
 /* ── Todo List ───────────────────────────────────────── */
 .todo-list {
@@ -467,6 +468,12 @@
   padding: 12px 16px;
   transition: border-color 0.2s;
 }
+
+/* Desktop ordering: check | assignee | info | right */
+.todo-item > .todo-check    { order: 0; }
+.todo-item > .assignee-wrap { order: 1; }
+.todo-item > .todo-info     { order: 2; }
+.todo-item > .todo-right    { order: 3; }
 .todo-item:hover { border-color: #4b5563; }
 .todo-item.status-done { opacity: 0.6; }
 .todo-item.status-pending { border-left: 3px solid #f59e0b; }
@@ -843,11 +850,21 @@
   .app-main { padding: 20px 16px; }
   .skill-grid { grid-template-columns: 1fr; }
   .form-row { flex-direction: column; }
-  .todo-date { display: none; }
+
+  /* Mobile todo layout: assignee | info | right */
+  .todo-item > .todo-check    { display: none; }
+  .todo-item > .assignee-wrap { order: 0; }
+  .todo-item > .todo-info     { order: 1; }
+  .todo-item > .todo-right    { order: 2; }
+
+  /* Right side: only show fire icon + status badge */
+  .todo-date  { display: none; }
+  .btn-remove { display: none; }
+
+  /* Description: show fully, no truncation */
   .todo-desc {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 180px;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: unset;
   }
 }
