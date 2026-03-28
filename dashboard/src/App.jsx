@@ -3,6 +3,7 @@ import { UserProvider, useUser } from './context/UserContext';
 import { useSkills } from './hooks/useSkills';
 import { useTodos } from './hooks/useTodos';
 import { useUsers } from './hooks/useUsers';
+import { useWeather } from './hooks/useWeather';
 import SkillCard from './components/SkillCard';
 import AddSkillForm from './components/AddSkillForm';
 import TodoSection from './components/TodoSection';
@@ -16,6 +17,7 @@ function Dashboard() {
   const { skills, loading: skillsLoading, error: skillsError, runSkill, addSkill, removeSkill } = useSkills();
   const { todos, loading: todosLoading, error: todosError, cycleStatus, assignTodo, addTodo, removeTodo } = useTodos();
   const { users, refetch: refetchUsers } = useUsers();
+  const { weather, city } = useWeather();
   const [showAddSkill, setShowAddSkill] = useState(false);
   const [showCreateUser, setShowCreateUser] = useState(false);
   const [page, setPage] = useState('dashboard');
@@ -35,7 +37,15 @@ function Dashboard() {
         <div className="header-top">
           <div>
             <h1 className="app-title">Command Center</h1>
-            <p className="app-date">{today}</p>
+            <p className="app-date">
+              {today}
+              {weather && (
+                <span className="app-weather">
+                  {weather.temp}{weather.unit} · {weather.condition}
+                  {city && ` · ${city}`}
+                </span>
+              )}
+            </p>
           </div>
           <div className="header-actions">
             <AccountMenu

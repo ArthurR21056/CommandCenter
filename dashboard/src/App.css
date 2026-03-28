@@ -35,6 +35,13 @@
   margin: 0;
 }
 
+.app-weather {
+  color: #64748b;
+  margin-left: 10px;
+  padding-left: 10px;
+  border-left: 1px solid #2d3348;
+}
+
 .header-actions {
   display: flex;
   gap: 8px;
