@@ -1,66 +1,63 @@
 /* ── Design Tokens ───────────────────────────────────── */
 :root {
-  /* Warm beige palette */
-  --bg:           #e5ddd4;
-  --surface:      #1e1a11;
-  --surface-2:    #262115;
-  --border:       #3a3226;
-  --border-light: #cfc5b8;
+  /* Warm cream palette (light mode) */
+  --bg:            #fdf7ec;
+  --surface:       #ffffff;
+  --surface-2:     #f5efe4;
+  --border:        #e8e0d0;
 
   /* Text */
-  --text:         #a39a8a;
-  --text-h:       #f5f0e8;
-  --text-dark:    #111111;
-  --text-muted:   #6b6257;
+  --text:          #8a8070;
+  --text-h:        #111111;
+  --text-muted:    #a89e90;
 
-  /* Accent */
-  --accent:       #d48b3a;
-  --accent-gold:  #c9a227;
-  --accent-bg:    rgba(212, 139, 58, 0.15);
-  --accent-border:rgba(212, 139, 58, 0.4);
+  /* Primary accent — coral red */
+  --accent:        #e84b42;
+  --accent-hover:  #cc3a32;
+  --accent-bg:     rgba(232, 75, 66, 0.08);
+  --accent-border: rgba(232, 75, 66, 0.22);
+
+  /* Secondary accent — amber yellow */
+  --yellow:        #f0a820;
+  --yellow-dark:   #111111;
 
   /* Status */
-  --success:      #2d8659;
-  --success-bg:   #0a1f12;
-  --success-border:#1a4d30;
-  --error:        #c0392b;
-  --error-bg:     #1f0a0a;
-  --error-border: #5a1a1a;
-  --warn:         #c9a227;
-  --warn-bg:      #1f1505;
-  --warn-border:  #5a3d0a;
+  --success:       #16a34a;
+  --success-bg:    #f0fdf4;
+  --success-border:#bbf7d0;
+  --success-text:  #15803d;
+  --error:         #e84b42;
+  --error-bg:      #fff1f0;
+  --error-border:  #fecaca;
+  --warn:          #d97706;
+  --warn-bg:       #fffbeb;
+  --warn-border:   #fde68a;
 
   /* Shadow */
-  --shadow:       0 8px 32px rgba(0,0,0,0.35);
-  --shadow-sm:    0 2px 8px rgba(0,0,0,0.2);
+  --shadow:        0 4px 24px rgba(0,0,0,0.09);
+  --shadow-sm:     0 2px 8px rgba(0,0,0,0.06);
+  --shadow-lg:     0 8px 40px rgba(0,0,0,0.13);
 
   /* Typography */
   --sans:    'Inter', system-ui, sans-serif;
-  --serif:   'Playfair Display', Georgia, serif;
+  --display: 'Syne', system-ui, sans-serif;
   --mono:    ui-monospace, Consolas, monospace;
 
-  font: 16px/150% var(--sans);
+  font: 16px/155% var(--sans);
   letter-spacing: 0.01em;
   color: var(--text);
   background: var(--bg);
-  color-scheme: dark;
+  color-scheme: light;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* ── Gradient blob background ────────────────────────── */
+/* ── Base ────────────────────────────────────────────── */
 body {
   margin: 0;
   background: var(--bg);
-  background-image:
-    radial-gradient(ellipse at 12% 10%,  rgba(218, 105, 55, 0.58) 0%,  transparent 42%),
-    radial-gradient(ellipse at 88% 8%,   rgba(140, 65, 195, 0.42) 0%,  transparent 38%),
-    radial-gradient(ellipse at 92% 88%,  rgba(195, 75, 115, 0.38) 0%,  transparent 40%),
-    radial-gradient(ellipse at 8%  85%,  rgba(220, 150, 50, 0.32) 0%,  transparent 36%),
-    radial-gradient(ellipse at 50% 50%,  rgba(200, 140, 80, 0.08) 0%,  transparent 70%);
-  background-attachment: fixed;
   min-height: 100vh;
 }
 
@@ -77,14 +74,15 @@ body {
 
 /* ── Base typography ─────────────────────────────────── */
 h1, h2 {
-  font-family: var(--serif);
-  font-weight: 700;
+  font-family: var(--display);
+  font-weight: 800;
   color: var(--text-h);
 }
 
 h1 {
   font-size: 52px;
-  letter-spacing: -1px;
+  letter-spacing: -1.5px;
+  line-height: 1.08;
   margin: 32px 0;
 
   @media (max-width: 1024px) {
@@ -95,8 +93,8 @@ h1 {
 
 h2 {
   font-size: 22px;
-  line-height: 118%;
-  letter-spacing: -0.2px;
+  line-height: 1.15;
+  letter-spacing: -0.3px;
   margin: 0 0 8px;
 
   @media (max-width: 1024px) {
@@ -110,8 +108,8 @@ code, .counter {
   font-family: var(--mono);
   display: inline-flex;
   border-radius: 4px;
-  color: var(--text-h);
+  color: var(--accent);
   font-size: 14px;
   padding: 3px 7px;
-  background: var(--surface-2);
+  background: var(--accent-bg);
 }
